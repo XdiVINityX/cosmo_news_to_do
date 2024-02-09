@@ -16,6 +16,5 @@ class AppView extends StatelessWidget {
       themeMode: ThemeMode.light,
       home: const PinCodeView(),
     );
-    ;
   }
 }
