@@ -9,7 +9,7 @@ class AppView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // TODO(fix): or application not "Flutter demo", right?
-      title: 'Flutter Demo',
+      title: 'Cosmo',
       theme: AppThemeData.light,
       darkTheme: AppThemeData.dark,
       // TODO(add): fix if it would be several themes

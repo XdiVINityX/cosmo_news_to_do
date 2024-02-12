@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+
 
 class PinCodeView extends StatefulWidget {
   const PinCodeView({super.key});
@@ -8,7 +11,7 @@ class PinCodeView extends StatefulWidget {
 }
 
 class _PinCodeWidgetState extends State<PinCodeView> {
-  late String pin;
+   late String pin;
 
 
   @override
@@ -24,33 +27,52 @@ class _PinCodeWidgetState extends State<PinCodeView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            /// аккуратнее с такими большими хардкодными размерами
-            /// Стоит обратить внимание на Expanded виджет,
-            /// а также FractionallySizedBox и подобные
-            const SizedBox(height: 100),
+            const Spacer(),
             const TextPinWidget(),
-            const SizedBox(height: 30),
-            const PinCodeArea(),
-            const SizedBox(height: 200),
-             NumberPad(onNumberPressed: _onButtonClick),
+            const SizedBox(height: 10),
+            PinCodeArea(pinLength: pin.length,setColor: _setColor),
+            const Spacer(),
+            NumberPad(
+                onNumberPressed: _onButtonNumberClick,
+                onDeletePressed: _onButtonDeleteClick
+            ),
+            const SizedBox(height: 40)
           ],
         ),
       ),
     );
   }
 
-
-  void _onButtonClick(String number) {
+  void _onButtonNumberClick(String number) {
     setState(() {
       if (pin.length < 4) {
         pin += number;
+        log('pinAdd = $pin');
       }
+      //TODO(add)  if number == 4 compare SecureStorage
     });
   }
+
+   void _onButtonDeleteClick() {
+     setState(() {
+       if (pin.isNotEmpty) {
+         pin = pin.substring(0,pin.length - 1);
+         log('pinDelete = $pin');
+       }
+     });
+   }
+
+   Color _setColor(int index) {
+    if (pin.length >= index + 1 && pin.isNotEmpty) {
+      return const Color(0xFF54BEA2);
+    }
+    return const Color(0xFF808080);
+  }
+
 }
 
 class TextPinWidget extends StatelessWidget {
-  const TextPinWidget({Key? key}) : super(key: key);
+  const TextPinWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +83,13 @@ class TextPinWidget extends StatelessWidget {
   }
 }
 
-
 class PinCodeArea extends StatelessWidget {
-  const PinCodeArea({Key? key,}) : super(key: key);
+  final Function(int) setColor;
+  final int pinLength;
+
+  const PinCodeArea({super.key,
+    required this.pinLength, required this.setColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +97,8 @@ class PinCodeArea extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(4, (index) {
         return Container(
-          decoration: BoxDecoration(color: const Color(0xFF808080), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color:
+          setColor(index), borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(5),
           width: 20,
           height: 20,
@@ -83,25 +110,34 @@ class PinCodeArea extends StatelessWidget {
 
 class NumberPad extends StatelessWidget {
   final Function(String) onNumberPressed;
-  const NumberPad({Key? key, required this.onNumberPressed}) : super(key: key);
+  final Function() onDeletePressed;
+  const NumberPad({super.key, required this.onNumberPressed, required this.onDeletePressed});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 250,
-      height: 250,
-      child: Expanded(
-        child: GridView.count(
+    return FractionallySizedBox(
+      widthFactor: 0.55,
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisSpacing: 20,
           mainAxisSpacing: 20,
           crossAxisCount: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          children: List.generate(9, (index) {
-            var indexInc = index + 1;
-            return ButtonNumber(number: indexInc.toString(), onPressed: onNumberPressed);
-          }),
         ),
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: 12,
+        itemBuilder:(context, index){
+          var number = index + 1;
+          if (number <= 9){
+            return ButtonNumber(number: number.toString(), onPressed: onNumberPressed);
+          }
+          switch(number){
+            case 10 : return const Spacer();
+            case 11 : return ButtonNumber(number: 0.toString(), onPressed: onNumberPressed);
+            case 12 : return IconButton(icon: const Icon(Icons.backspace),onPressed: onDeletePressed);
+          }
+          return null;
+        },
       ),
     );
   }
@@ -110,7 +146,7 @@ class NumberPad extends StatelessWidget {
 class ButtonNumber extends StatelessWidget {
   final String number;
   final Function(String) onPressed;
-  const ButtonNumber({Key? key, required this.number, required this.onPressed}) : super(key: key);
+  const ButtonNumber({super.key, required this.number, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -120,5 +156,7 @@ class ButtonNumber extends StatelessWidget {
       child: Text(number, style: const TextStyle(fontSize: 24, color: Color(0xFF000000))),
     );
   }
-
 }
+
+
+
