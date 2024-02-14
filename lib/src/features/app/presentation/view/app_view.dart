@@ -2,6 +2,7 @@ import 'package:cosmo_news_to_do/src/core/application/assets/themes/app_theme.da
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/view/pin_code_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../authentication/presentation/view_model/pin_code_view_model.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});

@@ -1,58 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../data/source/local/pin_secure_storage.dart';
-
-class PinCodeViewModel extends ChangeNotifier {
-  late PinSecureStorage _pinSecureStorage;
-  late String? _pin;
-  late bool havePin;
-  String pinInput = '';
-
-
-  PinCodeViewModel() {
-    init();
-  }
-
-  Future<void> init() async {
-    _pinSecureStorage = const PinSecureStorage();
-    _pin = await _pinSecureStorage.getPinCode();
-    havePin = _pin != null;
-  }
-
-
-  void onButtonNumberClick(String number) {
-    if (pinInput.length < 4) {
-      pinInput += number;
-      log('pinAdd = $pinInput');
-      notifyListeners();
-    }
-  }
-
-  void onButtonDeleteClick() {
-    if (pinInput.isNotEmpty) {
-      pinInput = pinInput.substring(0,pinInput.length - 1);
-      log('pinDelete = $pinInput');
-    }
-    notifyListeners();
-  }
-
-  Color setColor(int index) {
-    if (pinInput.length >= index + 1 && pinInput.isNotEmpty) {
-      return const Color(0xFF54BEA2);
-    }
-    return const Color(0xFF808080);
-  }
-
-//TODO(add)
-/// Получить пин код
-/// если он пустой, то в текст поставить 'Придумайте пин код'
-/// Пользователь вводит его, появляется надпись 'Повторите пин код'
-/// Если все верно, пускаем на следующий экран
-/// если не пустой, то надпись введите пин код, при верном пускаем, при неверном высвечивается
-/// 'Неверно, попробуйте еще раз'
-
-}
+import '../../../todo_list/presentation/view/todo_list_view.dart';
+import '../state/authentication_state.dart';
+import '../view_model/pin_code_view_model.dart';
 
 
 class PinCodeView extends StatefulWidget {
@@ -63,22 +13,44 @@ class PinCodeView extends StatefulWidget {
 }
 
 class _PinCodeWidgetState extends State<PinCodeView> {
-
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final viewModel = context.read<PinCodeViewModel>();
+    return Scaffold(
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Spacer(),
-            TextPinWidget(),
-            SizedBox(height: 10),
-            PinCodeArea(),
-            Spacer(),
-            NumberPad(),
-            SizedBox(height: 40)
-          ],
+        child: StreamBuilder(
+          stream: viewModel.pinCodeStateStream,
+          initialData: Loading,
+          builder: (context, snapshot) {
+            if (snapshot.data is Loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.data is Success) {
+              return const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Spacer(),
+                  TextPinWidget(),
+                  SizedBox(height: 10),
+                  PinCodeArea(),
+                  Spacer(),
+                  NumberPad(),
+                  SizedBox(height: 40)
+                ],
+              );
+            }
+            if (snapshot.data is Authenticated) {
+            //выполнится после завершения текущей  отрисовки
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const TodoListScreen()),
+                );
+              });
+            }
+            return const Center(
+              child: Text('Что-то пошло не так'),
+            );
+          },
         ),
       ),
     );
@@ -90,9 +62,10 @@ class TextPinWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'Введите пин код:',
-      style: TextStyle(fontSize: 24),
+    final viewModel = context.watch<PinCodeViewModel>();
+    return  Text(
+      viewModel.setText(),
+      style: const TextStyle(fontSize: 24),
     );
   }
 }
