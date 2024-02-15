@@ -2,19 +2,23 @@ import '../data/source/local/secure_storage.dart';
 import 'i_pin_secure_storage_repo.dart';
 
 class PinSecureStorageRepo implements IPinSecureStorageRepo{
-  late SecureStorage secureStorage;
+  late SecureStorage _secureStorage;
 
   @override
   Future<String?> getPinCode() async {
-    return await secureStorage.storage.read(key:'pin');
+    return await _secureStorage.storage.read(key:'pin');
   }
 
   @override
   Future<void> savePinCode(String pin) async {
-    await secureStorage.storage.write(key: 'pin', value: pin);
+    await _secureStorage.storage.write(key: 'pin', value: pin);
+  }
+
+  Future<void> deletePinCode() async {
+    await _secureStorage.storage.deleteAll();
   }
 
   PinSecureStorageRepo() {
-    secureStorage = const SecureStorage();
+    _secureStorage = const SecureStorage();
   }
 }

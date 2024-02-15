@@ -47,9 +47,7 @@ class _PinCodeWidgetState extends State<PinCodeView> {
                 );
               });
             }
-            return const Center(
-              child: Text('Что-то пошло не так'),
-            );
+            return const CircularProgressIndicator();
           },
         ),
       ),

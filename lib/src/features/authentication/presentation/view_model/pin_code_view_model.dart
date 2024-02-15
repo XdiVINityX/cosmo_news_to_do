@@ -6,7 +6,7 @@ import '../state/authentication_state.dart';
 
 class PinCodeViewModel extends ChangeNotifier {
 
-  final StreamController<PinState> _pinCodeStateStreamController = StreamController<PinState>.broadcast();
+  late StreamController<PinState> _pinCodeStateStreamController;
   Stream<PinState> get pinCodeStateStream => _pinCodeStateStreamController.stream;
 
   late String pinInput;
@@ -17,6 +17,7 @@ class PinCodeViewModel extends ChangeNotifier {
   late bool havePin;
 
   PinCodeViewModel() {
+    _pinCodeStateStreamController = StreamController<PinState>.broadcast();
     init();
   }
 
@@ -41,38 +42,94 @@ class PinCodeViewModel extends ChangeNotifier {
     _pinCodeStateStreamController.add(pinState);
   }
 
-
   void onButtonNumberClick(String number) {
+    if(havePin){
+       _handleHavePin(number);
+    } else{
+      _handleNoPin(number);
+    }
+  }
+
+  /// Обработка pin если он уже был задан
+  void _handleHavePin(String number) {
     if (pinInput.length < 4) {
       pinInput += number;
-      log('pinInput = $pinInput');
       notifyListeners();
-    } else if (pinInputRepeat.length < 4){
-      pinInputRepeat += number;
-      log('pinInputRepeat = $pinInputRepeat');
-      notifyListeners();
+      _comparePins();
     }
-    if (pinInput.length == 4 && pinInputRepeat.length == 4){
+  }
+
+  ///Обработка введенного пин кода и повторного
+  ///Когда пин код еще не был создан
+  void _handleNoPin(String number) {
+    if (pinInput.length < 4) {
+      _addToPinInput(number);
+    } else if (pinInputRepeat.length < 4){
+      _addToPinInputRepeat(number);
+    }
+    if (_bothPinsEntered()){
       _checkCodes();
     }
   }
 
+  bool _bothPinsEntered() => pinInput.length == 4 && pinInputRepeat.length == 4;
+
+  void _addToPinInput(String number) {
+    pinInput += number;
+    log('pinInput = $pinInput');
+    notifyListeners();
+  }
+
+  void _addToPinInputRepeat(String number) {
+    pinInputRepeat += number;
+    log('pinInputRepeat = $pinInputRepeat');
+    notifyListeners();
+  }
+
+
+  /// сравнение введенного пин кода с сохраненным
+  void _comparePins(){
+    if(havePin && (pinInput.length == 4) && _pin == pinInput){
+      updateState(Authenticated());
+    }
+    if(havePin && (pinInput.length == 4)  && _pin != pinInput ){
+      _handleMismatch();
+    }
+  }
+
+  /// Оба кода введены, и совпадают, тогда сохраняем
+  /// Иначе очищаем
+  void _checkCodes(){
+    if((pinInput == pinInputRepeat)){
+      _authenticateUser();
+    }
+    else {
+      _handleMismatch();
+    }
+  }
+
+  /// Сохраняем введенный пин и обновляем статус
+  void _authenticateUser() {
+    updateState(Loading());
+    _pinSecureStorageRepo.savePinCode(pinInputRepeat);
+    updateState(Authenticated());
+  }
+
+  /// Первичный и вторичный ввод не соответствуют друг другу
+  void _handleMismatch() {
+    _isFirstTry = false;
+    log('Неудачная попытка = $_isFirstTry');
+    _clear();
+    notifyListeners();
+  }
+
   void _clear(){
-    log('Ввод очищен = $_isFirstTry');
+    log('Ввод очищен = $pinInput $pinInputRepeat ');
     pinInput = '';
     pinInputRepeat = '';
   }
 
-  void _checkCodes(){
-    if((pinInput == pinInputRepeat)){
-      updateState(Authenticated());
-    }
-    else {
-      _isFirstTry = false;
-      _clear();
-      notifyListeners();
-    }
-  }
+
 
   void onButtonDeleteClick() {
     if (pinInputRepeat.isNotEmpty) {
@@ -101,15 +158,15 @@ class PinCodeViewModel extends ChangeNotifier {
   }
 
   String setText() {
+    if (!_isFirstTry) {
+      _isFirstTry = true;
+      return 'Пин-код не совпадает, повторите';
+    }
     if (havePin) {
       return 'Введите пин-код';
     }
     if (pinInput.length == 4) {
       return 'Повторите пин-код';
-    }
-    if (!_isFirstTry) {
-      _isFirstTry = true;
-      return 'Пин-код не совпадает, повторите';
     }
     return 'Придумайте пин-код';
   }
