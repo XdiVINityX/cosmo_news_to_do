@@ -1,3 +1,4 @@
+import 'package:cosmo_news_to_do/src/features/todo_list/presentation/view_model/todo_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../todo_list/presentation/view/todo_list_view.dart';
@@ -43,7 +44,8 @@ class _PinCodeWidgetState extends State<PinCodeView> {
             //выполнится после завершения текущей  отрисовки
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const TodoListScreen()),
+                  MaterialPageRoute(builder: (context) =>
+                      ChangeNotifierProvider(create: (_) => TodoListViewModel(),child:const TodoListScreen())),
                 );
               });
             }
