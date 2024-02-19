@@ -1,11 +1,16 @@
 sealed class PinState {}
 
-class Loading extends PinState {}
+class Loading implements PinState {}
 
-class Success extends PinState {}
+class Success implements PinState {}
 
-class Authenticated extends PinState {}
+class Authenticated implements PinState {}
 
-class AuthError extends PinState{}
+class AuthError implements PinState {}
 
-class Error extends PinState {}
+class Error implements PinState {
+  const Error({
+    required this.message,
+  });
+  final String message;
+}

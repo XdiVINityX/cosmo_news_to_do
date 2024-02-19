@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:developer';
+
+import 'package:cosmo_news_to_do/src/features/authentication/domain/pin_secure_storage_repo.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:flutter/cupertino.dart';
-import '../../domain/pin_secure_storage_repo.dart';
-import '../state/authentication_state.dart';
 
 class PinCodeViewModel extends ChangeNotifier {
-
+  PinCodeViewModel() {
+    _pinCodeStateStreamController = StreamController<PinState>.broadcast();
+    init();
+  }
   late StreamController<PinState> _pinCodeStateStreamController;
-  Stream<PinState> get pinCodeStateStream => _pinCodeStateStreamController.stream;
+  Stream<PinState> get pinCodeStateStream =>
+      _pinCodeStateStreamController.stream;
 
   late String pinInput;
   late String pinInputRepeat;
@@ -16,17 +21,13 @@ class PinCodeViewModel extends ChangeNotifier {
   late String? _pin;
   late bool havePin;
 
-  PinCodeViewModel() {
-    _pinCodeStateStreamController = StreamController<PinState>.broadcast();
-    init();
-  }
-
   Future<void> init() async {
     updateState(Loading());
     pinInput = '';
     pinInputRepeat = '';
     _isFirstTry = true;
     _pinSecureStorageRepo = PinSecureStorageRepo();
+    // await _pinSecureStorageRepo.deletePinCode();
     _pin = await _pinSecureStorageRepo.getPinCode();
     havePin = _pin != null;
     updateState(Success());
@@ -38,15 +39,15 @@ class PinCodeViewModel extends ChangeNotifier {
     _pinCodeStateStreamController.close();
   }
 
-  void updateState(PinState pinState){
+  void updateState(PinState pinState) {
     _pinCodeStateStreamController.add(pinState);
   }
 
-  void onButtonNumberClick(String number) {
-    if(havePin){
-       _handleHavePin(number);
-    } else{
-      _handleNoPin(number);
+  FutureOr<void> onButtonNumberClick(String number) async {
+    if (havePin) {
+      _handleHavePin(number);
+    } else {
+      await _handleNoPin(number);
     }
   }
 
@@ -61,14 +62,14 @@ class PinCodeViewModel extends ChangeNotifier {
 
   ///Обработка введенного пин кода и повторного
   ///Когда пин код еще не был создан
-  void _handleNoPin(String number) {
+  FutureOr<void> _handleNoPin(String number) async {
     if (pinInput.length < 4) {
       _addToPinInput(number);
-    } else if (pinInputRepeat.length < 4){
+    } else if (pinInputRepeat.length < 4) {
       _addToPinInputRepeat(number);
     }
-    if (_bothPinsEntered()){
-      _checkCodes();
+    if (_bothPinsEntered()) {
+      await _checkCodes();
     }
   }
 
@@ -86,33 +87,38 @@ class PinCodeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
   /// сравнение введенного пин кода с сохраненным
-  void _comparePins(){
-    if(havePin && (pinInput.length == 4) && _pin == pinInput){
+  void _comparePins() {
+    if (havePin && (pinInput.length == 4) && _pin == pinInput) {
       updateState(Authenticated());
     }
-    if(havePin && (pinInput.length == 4)  && _pin != pinInput ){
+    if (havePin && (pinInput.length == 4) && _pin != pinInput) {
       _handleMismatch();
     }
   }
 
   /// Оба кода введены, и совпадают, тогда сохраняем
   /// Иначе очищаем
-  void _checkCodes(){
-    if((pinInput == pinInputRepeat)){
-      _authenticateUser();
-    }
-    else {
+  Future<void> _checkCodes() async {
+    if (pinInput == pinInputRepeat) {
+      await _authenticateUser();
+    } else {
       _handleMismatch();
     }
   }
 
   /// Сохраняем введенный пин и обновляем статус
-  void _authenticateUser() {
-    updateState(Loading());
-    _pinSecureStorageRepo.savePinCode(pinInputRepeat);
-    updateState(Authenticated());
+  Future<void> _authenticateUser() async {
+    try {
+      updateState(Loading());
+
+      await _pinSecureStorageRepo.savePinCode(pinInputRepeat);
+      updateState(Authenticated());
+    } on Object {
+      updateState(
+        const Error(message: 'Не удалось сохранить пин код'),
+      );
+    }
   }
 
   /// Первичный и вторичный ввод не соответствуют друг другу
@@ -123,21 +129,19 @@ class PinCodeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _clear(){
+  void _clear() {
     log('Ввод очищен = $pinInput $pinInputRepeat ');
     pinInput = '';
     pinInputRepeat = '';
   }
 
-
-
   void onButtonDeleteClick() {
     if (pinInputRepeat.isNotEmpty) {
-      pinInputRepeat = pinInputRepeat.substring(0,pinInputRepeat.length - 1);
+      pinInputRepeat = pinInputRepeat.substring(0, pinInputRepeat.length - 1);
       log('pinInputRepeat = $pinInputRepeat');
-    }else{
+    } else {
       if (pinInput.isNotEmpty) {
-        pinInput = pinInput.substring(0,pinInput.length - 1);
+        pinInput = pinInput.substring(0, pinInput.length - 1);
         log('pinInput = $pinInput');
       }
     }
