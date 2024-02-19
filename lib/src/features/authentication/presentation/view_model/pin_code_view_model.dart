@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:cosmo_news_to_do/src/features/authentication/domain/pin_secure_storage_repo.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/pin_repo.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -111,7 +111,6 @@ class PinCodeViewModel extends ChangeNotifier {
   Future<void> _authenticateUser() async {
     try {
       updateState(Loading());
-
       await _pinSecureStorageRepo.savePinCode(pinInputRepeat);
       updateState(Authenticated());
     } on Object {

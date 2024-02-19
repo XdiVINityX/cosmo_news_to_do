@@ -1,7 +1,6 @@
+import 'package:cosmo_news_to_do/src/features/todo_list/presentation/view_model/todo_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../view_model/todo_list_view_model.dart';
 
 class TodoListScreen extends StatefulWidget {
   const TodoListScreen({super.key});
@@ -13,9 +12,8 @@ class TodoListScreen extends StatefulWidget {
 class _TodoListScreenState extends State<TodoListScreen> {
 
   @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
+  Widget build(BuildContext context) =>
+      Scaffold(
       appBar: AppBar(
         title: const Text('Список дел'),
       ),
@@ -33,15 +31,15 @@ class _TodoListScreenState extends State<TodoListScreen> {
         ),
       ),
     );
-  }
 }
 
 class _TextFieldInput extends StatelessWidget {
-  final TextEditingController textEditingController;
 
   const _TextFieldInput({
     required this.textEditingController,
   });
+
+  final TextEditingController textEditingController;
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +76,8 @@ class _ListViewTaskState extends State<_ListViewTask> {
     final viewModel = context.watch<TodoListViewModel>();
     return ListView.builder(
         itemCount: viewModel.getItemCount(),
-        itemBuilder: (context, index) {
-          return Container(
+        itemBuilder: (context, index) =>
+            Container(
             margin: const EdgeInsets.fromLTRB(0, 5, 0, 0),
             decoration: BoxDecoration(
               color: const Color(0xFFEAEAEA),
@@ -89,18 +87,17 @@ class _ListViewTaskState extends State<_ListViewTask> {
               leading: _LeadingIconButton(index: index),
               title: _TextTitle(index: index),
             ),
-          );
-        }
+          )
     );
   }
 }
 
 class _LeadingIconButton extends StatelessWidget {
-  final int index;
 
   const _LeadingIconButton({
     required this.index,
   });
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -116,9 +113,9 @@ class _LeadingIconButton extends StatelessWidget {
 }
 
 class _TextTitle extends StatelessWidget {
-  final int index;
   const _TextTitle({required this.index,
   });
+  final int index;
 
   @override
   Widget build(BuildContext context) {

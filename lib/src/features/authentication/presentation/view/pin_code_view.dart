@@ -16,8 +16,7 @@ class _PinCodeWidgetState extends State<PinCodeView> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<PinCodeViewModel>()
+    context.read<PinCodeViewModel>()
         .pinCodeStateStream
         .listen(_pinCodeStateListener);
   }
@@ -152,7 +151,7 @@ class NumberPad extends StatelessWidget {
         shrinkWrap: true,
         itemCount: 12,
         itemBuilder: (context, index) {
-          var number = index + 1;
+          final number = index + 1;
           if (number <= 9) {
             return ButtonNumber(number: number.toString());
           }
