@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/widget/number_pad.dart';
@@ -19,7 +18,8 @@ class _PinCodeWidgetState extends State<PinCodeView> {
   @override
   void initState() {
     super.initState();
-    context.read<PinCodeViewModel>()
+    context
+        .read<PinCodeViewModel>()
         .pinCodeStateStream
         .listen(_pinCodeStateListener);
   }
@@ -89,9 +89,14 @@ class PinCodeArea extends StatefulWidget {
 }
 
 class _PinCodeAreaState extends State<PinCodeArea> {
-  _PinCodeAreaState(): pinCodeStateInput = PinCodeStateInput();
+  _PinCodeAreaState() : pinCodeStateInput = PinCodeStateInput();
   late PinCodeStateInput pinCodeStateInput;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<PinCodeViewModel>();
@@ -103,7 +108,7 @@ class _PinCodeAreaState extends State<PinCodeArea> {
         4,
         (index) => Container(
           decoration: BoxDecoration(
-            color: setColor(index),//viewModel.setColor(index),
+            color: setColor(index), //viewModel.setColor(index),
             borderRadius: BorderRadius.circular(10),
           ),
           margin: const EdgeInsets.all(5),
@@ -114,29 +119,27 @@ class _PinCodeAreaState extends State<PinCodeArea> {
     );
   }
 
-  void _pinCodeStateListener(AuthenticationState state){
-    if (state is PinCodeChangedInput){
-      pinCodeStateInput.pinInput = state.pinCodeState.pinInput;
-      pinCodeStateInput.pinInputRepeat = state.pinCodeState.pinInputRepeat;
+  void _pinCodeStateListener(AuthenticationState state) {
+    if (state is PinCodeChangedInput) {
+      pinCodeStateInput
+        ..pinInput = state.pinCodeState.pinInput
+        ..pinInputRepeat = state.pinCodeState.pinInputRepeat;
     }
   }
 
   Color setColor(int index) {
     log('pinInput = ${pinCodeStateInput.pinInput}');
     if (pinCodeStateInput.pinInput.length == 4) {
-      if (pinCodeStateInput.pinInputRepeat.length >= index + 1 && pinCodeStateInput.pinInputRepeat.isNotEmpty) {
+      if (pinCodeStateInput.pinInputRepeat.length >= index + 1 &&
+          pinCodeStateInput.pinInputRepeat.isNotEmpty) {
         return const Color(0xFF188077);
       }
       return const Color(0xFF808080);
     }
-    if (pinCodeStateInput.pinInput.length >= index + 1 && pinCodeStateInput.pinInput.isNotEmpty) {
+    if (pinCodeStateInput.pinInput.length >= index + 1 &&
+        pinCodeStateInput.pinInput.isNotEmpty) {
       return const Color(0xFF54BEA2);
     }
     return const Color(0xFF808080);
   }
 }
-/*
-_PinCodeAreaState(): pinCodeStateInput = PinCodeStateInput();
-late PinCodeStateInput pinCodeStateInput;
-*/
-

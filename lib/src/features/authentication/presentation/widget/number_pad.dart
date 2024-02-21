@@ -25,16 +25,16 @@ class NumberPad extends StatelessWidget {
         itemBuilder: (context, index) {
           final number = index + 1;
           if (number <= 9) {
-            return ButtonNumber(
+            return _ButtonNumber(
                  onButtonTap: viewModel.onButtonNumberClick,
-                number: number.toString()
+                number: '$number',
             );
           }
           switch (number) {
             case 10:
               return const SizedBox();
             case 11:
-              return ButtonNumber(
+              return _ButtonNumber(
                 onButtonTap: viewModel.onButtonNumberClick,
                 number: 0.toString() );
             case 12:
@@ -49,9 +49,10 @@ class NumberPad extends StatelessWidget {
     );
   }
 }
-
-class ButtonNumber extends StatelessWidget {
-  const ButtonNumber({super.key,
+// TODO(red) : pub function
+// Future red
+class _ButtonNumber extends StatelessWidget {
+  const _ButtonNumber({
     required this.number,
     required Future<void> Function(String) onButtonTap,
   }) : _onButtonTap = onButtonTap;
