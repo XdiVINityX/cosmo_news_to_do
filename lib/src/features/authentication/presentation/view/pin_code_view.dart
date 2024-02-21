@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/presentation/widget/number_pad.dart';
 import 'package:cosmo_news_to_do/src/features/todo_list/presentation/view/todo_list_view.dart';
 import 'package:cosmo_news_to_do/src/features/todo_list/presentation/view_model/todo_list_view_model.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +24,8 @@ class _PinCodeWidgetState extends State<PinCodeView> {
         .listen(_pinCodeStateListener);
   }
 
-  void _pinCodeStateListener(PinState state) {
-    if (state is Authenticated) {
+  void _pinCodeStateListener(AuthenticationState state) {
+    if (state is PinCodeAuthenticated) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<dynamic>(
           builder: (context) => ChangeNotifierProvider(
@@ -39,11 +42,11 @@ class _PinCodeWidgetState extends State<PinCodeView> {
     final viewModel = context.read<PinCodeViewModel>();
     return Scaffold(
       body: SafeArea(
-        child: StreamBuilder<PinState>(
+        child: StreamBuilder<AuthenticationState>(
           stream: viewModel.pinCodeStateStream,
-          initialData: Loading(),
+          initialData: const PinCodeLoading(),
           builder: (context, snapshot) => switch (snapshot.data) {
-            Loading() => const Center(
+            PinCodeLoading() => const Center(
                 child: CircularProgressIndicator(),
               ),
             _ => const Column(
@@ -59,35 +62,6 @@ class _PinCodeWidgetState extends State<PinCodeView> {
                 ],
               ),
           },
-          /*{
-            if (snapshot.data is Loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.data is Success) {
-              return const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Spacer(),
-                  TextPinWidget(),
-                  SizedBox(height: 10),
-                  PinCodeArea(),
-                  Spacer(),
-                  NumberPad(),
-                  SizedBox(height: 40)
-                ],
-              );
-            }
-            if (snapshot.data is Authenticated) {
-            //выполнится после завершения текущей  отрисовки
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) =>
-                      ChangeNotifierProvider(create: (_) => TodoListViewModel(),child:const TodoListScreen())),
-                );
-              });
-            }
-            return const CircularProgressIndicator();
-          },*/
         ),
       ),
     );
@@ -107,19 +81,29 @@ class TextPinWidget extends StatelessWidget {
   }
 }
 
-class PinCodeArea extends StatelessWidget {
+class PinCodeArea extends StatefulWidget {
   const PinCodeArea({super.key});
+
+  @override
+  State<PinCodeArea> createState() => _PinCodeAreaState();
+}
+
+class _PinCodeAreaState extends State<PinCodeArea> {
+  _PinCodeAreaState(): pinCodeStateInput = PinCodeStateInput();
+  late PinCodeStateInput pinCodeStateInput;
 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<PinCodeViewModel>();
+    viewModel.pinCodeStateStream.listen(_pinCodeStateListener);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
         4,
         (index) => Container(
           decoration: BoxDecoration(
-            color: viewModel.setColor(index),
+            color: setColor(index),//viewModel.setColor(index),
             borderRadius: BorderRadius.circular(10),
           ),
           margin: const EdgeInsets.all(5),
@@ -129,66 +113,30 @@ class PinCodeArea extends StatelessWidget {
       ),
     );
   }
-}
 
-class NumberPad extends StatelessWidget {
-  const NumberPad({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = context.read<PinCodeViewModel>();
-    return FractionallySizedBox(
-      widthFactor: 0.6,
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-          crossAxisCount: 3,
-        ),
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: 12,
-        itemBuilder: (context, index) {
-          final number = index + 1;
-          if (number <= 9) {
-            return ButtonNumber(number: number.toString());
-          }
-          switch (number) {
-            case 10:
-              return const SizedBox();
-            case 11:
-              return ButtonNumber(number: 0.toString());
-            case 12:
-              return IconButton(
-                icon: const Icon(Icons.backspace),
-                onPressed: viewModel.onButtonDeleteClick,
-              );
-          }
-          return null;
-        },
-      ),
-    );
-  }
-}
-
-class ButtonNumber extends StatelessWidget {
-  const ButtonNumber({super.key, required this.number});
-  final String number;
-
-  Future<void> _onButtonTap(BuildContext context) async {
-    final vm = context.read<PinCodeViewModel>();
-    await vm.onButtonNumberClick(number);
+  void _pinCodeStateListener(AuthenticationState state){
+    if (state is PinCodeChangedInput){
+      pinCodeStateInput.pinInput = state.pinCodeState.pinInput;
+      pinCodeStateInput.pinInputRepeat = state.pinCodeState.pinInputRepeat;
+    }
   }
 
-  @override
-  Widget build(BuildContext context) => TextButton(
-        style: TextButton.styleFrom(backgroundColor: const Color(0xFFE0DDDD)),
-        onPressed: () => _onButtonTap(context),
-        child: Text(
-          number,
-          style: const TextStyle(fontSize: 24, color: Color(0xFF000000)),
-        ),
-      );
+  Color setColor(int index) {
+    log('pinInput = ${pinCodeStateInput.pinInput}');
+    if (pinCodeStateInput.pinInput.length == 4) {
+      if (pinCodeStateInput.pinInputRepeat.length >= index + 1 && pinCodeStateInput.pinInputRepeat.isNotEmpty) {
+        return const Color(0xFF188077);
+      }
+      return const Color(0xFF808080);
+    }
+    if (pinCodeStateInput.pinInput.length >= index + 1 && pinCodeStateInput.pinInput.isNotEmpty) {
+      return const Color(0xFF54BEA2);
+    }
+    return const Color(0xFF808080);
+  }
 }
+/*
+_PinCodeAreaState(): pinCodeStateInput = PinCodeStateInput();
+late PinCodeStateInput pinCodeStateInput;
+*/
+

@@ -1,36 +1,43 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:cosmo_news_to_do/src/features/authentication/domain/pin_repo.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:flutter/cupertino.dart';
 
+
+class PinCodeStateInput {
+  PinCodeStateInput()
+      : isFirstTry = true,
+        pinInput = '',
+        pinInputRepeat = '';
+
+  String pinInput;
+  String pinInputRepeat;
+  bool isFirstTry;
+}
+
 class PinCodeViewModel extends ChangeNotifier {
   PinCodeViewModel() {
-    _pinCodeStateStreamController = StreamController<PinState>.broadcast();
+    _pinCodeStateStreamController = StreamController<AuthenticationState>.broadcast();
     init();
   }
-  late StreamController<PinState> _pinCodeStateStreamController;
-  Stream<PinState> get pinCodeStateStream =>
-      _pinCodeStateStreamController.stream;
 
-  late String pinInput;
-  late String pinInputRepeat;
-  late bool _isFirstTry;
-  late PinSecureStorageRepo _pinSecureStorageRepo;
-  late String? _pin;
-  late bool havePin;
+  late final PinCodeStateInput _pinCodeStateInput;
+  late StreamController<AuthenticationState> _pinCodeStateStreamController;
+  Stream<AuthenticationState> get pinCodeStateStream =>
+      _pinCodeStateStreamController.stream;
+  late final PinSecureStorageRepo _pinSecureStorageRepo;
+  late String? _pinFromStorage;
+  late bool _havePinFromStorage;
 
   Future<void> init() async {
-    updateState(Loading());
-    pinInput = '';
-    pinInputRepeat = '';
-    _isFirstTry = true;
+    updateState(PinCodeLoading());
+    _pinCodeStateInput = PinCodeStateInput();
     _pinSecureStorageRepo = PinSecureStorageRepo();
     // await _pinSecureStorageRepo.deletePinCode();
-    _pin = await _pinSecureStorageRepo.getPinCode();
-    havePin = _pin != null;
-    updateState(Success());
+    _pinFromStorage = await _pinSecureStorageRepo.getPinCode();
+    _havePinFromStorage = _pinFromStorage != null;
+    updateState(PinCodeLoaded(pinCodeState: _pinCodeStateInput));
   }
 
   @override
@@ -39,22 +46,23 @@ class PinCodeViewModel extends ChangeNotifier {
     _pinCodeStateStreamController.close();
   }
 
-  void updateState(PinState pinState) {
+  void updateState(AuthenticationState pinState) {
     _pinCodeStateStreamController.add(pinState);
   }
 
-  FutureOr<void> onButtonNumberClick(String number) async {
-    if (havePin) {
+  Future<void> onButtonNumberClick(String number) async {
+    if (_havePinFromStorage) {
       _handleHavePin(number);
     } else {
       await _handleNoPin(number);
+      updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
     }
   }
 
   /// Обработка pin если он уже был задан
   void _handleHavePin(String number) {
-    if (pinInput.length < 4) {
-      pinInput += number;
+    if (_pinCodeStateInput.pinInput.length < 4) {
+      _pinCodeStateInput.pinInput += number;
       notifyListeners();
       _comparePins();
     }
@@ -63,9 +71,9 @@ class PinCodeViewModel extends ChangeNotifier {
   ///Обработка введенного пин кода и повторного
   ///Когда пин код еще не был создан
   FutureOr<void> _handleNoPin(String number) async {
-    if (pinInput.length < 4) {
+    if (_pinCodeStateInput.pinInput.length < 4) {
       _addToPinInput(number);
-    } else if (pinInputRepeat.length < 4) {
+    } else if (_pinCodeStateInput.pinInputRepeat.length < 4) {
       _addToPinInputRepeat(number);
     }
     if (_bothPinsEntered()) {
@@ -73,26 +81,26 @@ class PinCodeViewModel extends ChangeNotifier {
     }
   }
 
-  bool _bothPinsEntered() => pinInput.length == 4 && pinInputRepeat.length == 4;
+  bool _bothPinsEntered() => _pinCodeStateInput.pinInput.length == 4 && _pinCodeStateInput.pinInputRepeat.length == 4;
 
   void _addToPinInput(String number) {
-    pinInput += number;
-    log('pinInput = $pinInput');
+    _pinCodeStateInput.pinInput += number;
+    log('pinInput in viewModel = ${_pinCodeStateInput.pinInput}');
     notifyListeners();
   }
 
   void _addToPinInputRepeat(String number) {
-    pinInputRepeat += number;
-    log('pinInputRepeat = $pinInputRepeat');
+    _pinCodeStateInput.pinInputRepeat += number;
+    log('pinInputRepeat in viewModel = ${_pinCodeStateInput.pinInputRepeat}');
     notifyListeners();
   }
 
   /// сравнение введенного пин кода с сохраненным
   void _comparePins() {
-    if (havePin && (pinInput.length == 4) && _pin == pinInput) {
-      updateState(Authenticated());
+    if (_havePinFromStorage && (_pinCodeStateInput.pinInput.length == 4) && _pinFromStorage == _pinCodeStateInput.pinInput) {
+      updateState(PinCodeAuthenticated());
     }
-    if (havePin && (pinInput.length == 4) && _pin != pinInput) {
+    if (_havePinFromStorage && (_pinCodeStateInput.pinInput.length == 4) && _pinFromStorage != _pinCodeStateInput.pinInput) {
       _handleMismatch();
     }
   }
@@ -100,7 +108,7 @@ class PinCodeViewModel extends ChangeNotifier {
   /// Оба кода введены, и совпадают, тогда сохраняем
   /// Иначе очищаем
   Future<void> _checkCodes() async {
-    if (pinInput == pinInputRepeat) {
+    if (_pinCodeStateInput.pinInput == _pinCodeStateInput.pinInputRepeat) {
       await _authenticateUser();
     } else {
       _handleMismatch();
@@ -110,65 +118,54 @@ class PinCodeViewModel extends ChangeNotifier {
   /// Сохраняем введенный пин и обновляем статус
   Future<void> _authenticateUser() async {
     try {
-      updateState(Loading());
-      await _pinSecureStorageRepo.savePinCode(pinInputRepeat);
-      updateState(Authenticated());
+      updateState(const PinCodeLoading());
+      await _pinSecureStorageRepo.savePinCode(_pinCodeStateInput.pinInputRepeat);
+      updateState(PinCodeAuthenticated());
     } on Object {
       updateState(
-        const Error(message: 'Не удалось сохранить пин код'),
+        const PinCodeError(message: 'Не удалось сохранить пин код'),
       );
     }
   }
 
   /// Первичный и вторичный ввод не соответствуют друг другу
   void _handleMismatch() {
-    _isFirstTry = false;
-    log('Неудачная попытка = $_isFirstTry');
+    _pinCodeStateInput.isFirstTry = false;
+    log('Неудачная попытка = $_pinCodeStateInput.isFirstTry');
     _clear();
     notifyListeners();
   }
 
   void _clear() {
-    log('Ввод очищен = $pinInput $pinInputRepeat ');
-    pinInput = '';
-    pinInputRepeat = '';
+    log('Ввод очищен = $_pinCodeStateInput.pinInput $_pinCodeStateInput.pinInputRepeat ');
+    _pinCodeStateInput..pinInput = ''
+    ..pinInputRepeat = '';
   }
 
   void onButtonDeleteClick() {
-    if (pinInputRepeat.isNotEmpty) {
-      pinInputRepeat = pinInputRepeat.substring(0, pinInputRepeat.length - 1);
-      log('pinInputRepeat = $pinInputRepeat');
+    if (_pinCodeStateInput.pinInputRepeat.isNotEmpty) {
+      _pinCodeStateInput.pinInputRepeat = _pinCodeStateInput.pinInputRepeat.substring(0, _pinCodeStateInput.pinInputRepeat.length - 1);
+      log('pinInputRepeat in viewModel = ${_pinCodeStateInput.pinInputRepeat}');
+      updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
     } else {
-      if (pinInput.isNotEmpty) {
-        pinInput = pinInput.substring(0, pinInput.length - 1);
-        log('pinInput = $pinInput');
+      if (_pinCodeStateInput.pinInput.isNotEmpty) {
+        _pinCodeStateInput.pinInput = _pinCodeStateInput.pinInput.substring(0, _pinCodeStateInput.pinInput.length - 1);
+        log('pinInput in viewModel = ${_pinCodeStateInput.pinInput}');
+        updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
       }
     }
     notifyListeners();
   }
 
-  Color setColor(int index) {
-    if (pinInput.length == 4) {
-      if (pinInputRepeat.length >= index + 1 && pinInputRepeat.isNotEmpty) {
-        return const Color(0xFF188077);
-      }
-      return const Color(0xFF808080);
-    }
-    if (pinInput.length >= index + 1 && pinInput.isNotEmpty) {
-      return const Color(0xFF54BEA2);
-    }
-    return const Color(0xFF808080);
-  }
-
   String setText() {
-    if (!_isFirstTry) {
-      _isFirstTry = true;
+    if (!_pinCodeStateInput.isFirstTry) {
+      _pinCodeStateInput.isFirstTry = true;
       return 'Пин-код не совпадает, повторите';
     }
-    if (havePin) {
+    if (_havePinFromStorage) {
       return 'Введите пин-код';
     }
-    if (pinInput.length == 4) {
+    if (_pinCodeStateInput.pinInput.length == 4) {
       return 'Повторите пин-код';
     }
     return 'Придумайте пин-код';

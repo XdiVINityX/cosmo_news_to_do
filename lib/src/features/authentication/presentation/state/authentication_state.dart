@@ -1,15 +1,35 @@
-sealed class PinState {}
+import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
 
-class Loading implements PinState {}
+sealed class AuthenticationState {}
 
-class Success implements PinState {}
+class PinCodeLoading implements AuthenticationState {
+  const PinCodeLoading({
+    this.pinCodeState,
+  });
+  final PinCodeStateInput? pinCodeState;
+}
 
-class Authenticated implements PinState {}
+class PinCodeLoaded implements AuthenticationState {
+  const PinCodeLoaded({
+    this.pinCodeState,
+  });
 
-class AuthError implements PinState {}
+  final PinCodeStateInput? pinCodeState;
+}
+class PinCodeChangedInput implements AuthenticationState{
+  const PinCodeChangedInput({
+    required this.pinCodeState,
+  });
 
-class Error implements PinState {
-  const Error({
+  final PinCodeStateInput pinCodeState;
+}
+
+class PinCodeAuthenticated implements AuthenticationState {}
+
+class PinCodeAuthError implements AuthenticationState {}
+
+class PinCodeError implements AuthenticationState {
+  const PinCodeError({
     required this.message,
   });
   final String message;
