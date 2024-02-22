@@ -13,7 +13,7 @@ sealed class SignUpState {
 final class SignUpState$Idle implements SignUpState {
   const SignUpState$Idle({
     this.pinInputData = PinRequestEntity.initial,
-    this.repeatMode = true,
+    this.repeatMode = false,
   });
   @override
   final PinRequestEntity pinInputData;

@@ -1,28 +1,60 @@
 import 'package:flutter/material.dart';
 
-class PinInputWidget extends StatelessWidget {
-  PinInputWidget({
+class PinInputWidget extends StatefulWidget {
+  const PinInputWidget({
     this.pinLength = 4,
-    String pinInput = '',
+    this.pinInput = '',
     this.activeColor = Colors.green,
     this.inactiveColor = Colors.grey,
     this.errorColor = Colors.red,
     this.error = false,
+    this.onComplete,
     super.key,
-  }) : _pinInput = pinInput.padLeft(pinLength).trim();
+  });
 
   final int pinLength;
-  final String _pinInput;
+  final String pinInput;
   final bool error;
 
   final Color activeColor;
   final Color inactiveColor;
   final Color errorColor;
 
-  bool _isActive(int index) => index < _pinInput.length;
+  final VoidCallback? onComplete;
+
+  @override
+  State<PinInputWidget> createState() => _PinInputWidgetState();
+}
+
+class _PinInputWidgetState extends State<PinInputWidget> {
+  late final ValueNotifier<String> _pinInput;
+
+  @override
+  void initState() {
+    super.initState();
+    _pinInput = ValueNotifier(widget.pinInput.padLeft(widget.pinLength).trim())
+      ..addListener(_pinChangeListener);
+  }
+
+  @override
+  void didUpdateWidget(PinInputWidget oldWidget) {
+    _pinInput.value = widget.pinInput.padLeft(widget.pinLength).trim();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _pinChangeListener() {
+    if (_pinInput.value.length == widget.pinLength) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        _pinInput.value = '';
+        widget.onComplete?.call();
+      });
+    }
+  }
+
+  bool _isActive(int index) => index < _pinInput.value.length;
 
   _PinInputType _getType(int index) {
-    if (error) return _PinInputType.error;
+    if (widget.error) return _PinInputType.error;
     return _isActive(index) ? _PinInputType.active : _PinInputType.inactive;
   }
 
@@ -31,19 +63,27 @@ class PinInputWidget extends StatelessWidget {
 
     switch (type) {
       case _PinInputType.inactive:
-        return inactiveColor;
+        return widget.inactiveColor;
       case _PinInputType.active:
-        return activeColor;
+        return widget.activeColor;
       case _PinInputType.error:
-        return errorColor;
+        return widget.errorColor;
     }
+  }
+
+  @override
+  void dispose() {
+    _pinInput
+      ..removeListener(_pinChangeListener)
+      ..dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(
-          pinLength,
+          widget.pinLength,
           (index) => _PinItemWidget(
             color: _getColor(index),
           ),

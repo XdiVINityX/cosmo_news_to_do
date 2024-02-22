@@ -1,3 +1,4 @@
+import 'package:cosmo_news_to_do/src/core/utils/extensions/string_extensions.dart';
 import 'package:cosmo_news_to_do/src/features/pin_authentication/presentation/domain/view_model/sign_up_state.dart';
 import 'package:flutter/material.dart';
 
@@ -5,21 +6,31 @@ class SignUpViewModel extends ChangeNotifier {
   SignUpViewModel() : state = const SignUpState$Idle();
   late SignUpState state;
 
-  void onPinChanged(String v, {bool repeat = false}) {
-    final value = repeat
-        ? '${state.pinInputData.repeatPin}$v'
-        : '${state.pinInputData.pin}$v';
+  void onPinChanged(String v, {bool remove = false}) {
+    late String updatedValue;
+    if (remove) {
+      updatedValue = state.repeatMode
+          ? state.pinInputData.repeatPin.removedLast
+          : state.pinInputData.pin.removedLast;
+    } else {
+      updatedValue = state.repeatMode
+          ? '${state.pinInputData.repeatPin}$v'
+          : '${state.pinInputData.pin}$v';
+    }
     state = SignUpState$Idle(
       pinInputData: state.pinInputData.copyWith(
-        pin: repeat ? null : value,
-        repeatPin: repeat ? value : null,
+        pin: state.repeatMode ? null : updatedValue,
+        repeatPin: state.repeatMode ? updatedValue : null,
       ),
     );
     notifyListeners();
   }
 
-  void changeRepeatMode(bool repeatMode) {
-    state = state.copyWith(repeatMode: repeatMode);
+  void changeRepeatMode() {
+    if (state.repeatMode) {
+    } else {
+      state = state.copyWith(repeatMode: true);
+    }
     notifyListeners();
   }
 
