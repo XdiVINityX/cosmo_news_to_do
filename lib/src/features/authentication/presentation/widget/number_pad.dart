@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +35,7 @@ class NumberPad extends StatelessWidget {
             case 11:
               return _ButtonNumber(
                 onButtonTap: viewModel.onButtonNumberClick,
-                number: 0.toString() );
+                number: 0.toString(),);
             case 12:
               return IconButton(
                 icon: const Icon(Icons.backspace),
@@ -49,21 +48,21 @@ class NumberPad extends StatelessWidget {
     );
   }
 }
-// TODO(red) : pub function
-// Future red
+
 class _ButtonNumber extends StatelessWidget {
+
   const _ButtonNumber({
     required this.number,
-    required Future<void> Function(String) onButtonTap,
-  }) : _onButtonTap = onButtonTap;
+    required this.onButtonTap,
+  });
 
   final String number;
-  final Future<void> Function(String) _onButtonTap;
+  final void Function(String) onButtonTap;
 
   @override
   Widget build(BuildContext context) => TextButton(
     style: TextButton.styleFrom(backgroundColor: const Color(0xFFE0DDDD)),
-    onPressed: () => _onButtonTap(number),
+    onPressed: () => onButtonTap(number),
     child: Text(
       number,
       style: const TextStyle(fontSize: 24, color: Color(0xFF000000)),

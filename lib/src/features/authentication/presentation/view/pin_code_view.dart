@@ -89,12 +89,13 @@ class PinCodeArea extends StatefulWidget {
 }
 
 class _PinCodeAreaState extends State<PinCodeArea> {
-  _PinCodeAreaState() : pinCodeStateInput = PinCodeStateInput();
+  _PinCodeAreaState();
   late PinCodeStateInput pinCodeStateInput;
 
   @override
   void initState() {
-    // TODO: implement initState
+    pinCodeStateInput = PinCodeStateInput();
+
     super.initState();
   }
   @override

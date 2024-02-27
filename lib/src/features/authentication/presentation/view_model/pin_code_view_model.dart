@@ -59,6 +59,22 @@ class PinCodeViewModel extends ChangeNotifier {
     }
   }
 
+
+  void onButtonDeleteClick() {
+    if (_pinCodeStateInput.pinInputRepeat.isNotEmpty) {
+      _pinCodeStateInput.pinInputRepeat = _pinCodeStateInput.pinInputRepeat.substring(0, _pinCodeStateInput.pinInputRepeat.length - 1);
+      log('pinInputRepeat in viewModel = ${_pinCodeStateInput.pinInputRepeat}');
+      updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
+    } else {
+      if (_pinCodeStateInput.pinInput.isNotEmpty) {
+        _pinCodeStateInput.pinInput = _pinCodeStateInput.pinInput.substring(0, _pinCodeStateInput.pinInput.length - 1);
+        log('pinInput in viewModel = ${_pinCodeStateInput.pinInput}');
+        updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
+      }
+    }
+    notifyListeners();
+  }
+
   /// Обработка pin если он уже был задан
   void _handleHavePin(String number) {
     if (_pinCodeStateInput.pinInput.length < 4) {
@@ -142,20 +158,6 @@ class PinCodeViewModel extends ChangeNotifier {
     ..pinInputRepeat = '';
   }
 
-  void onButtonDeleteClick() {
-    if (_pinCodeStateInput.pinInputRepeat.isNotEmpty) {
-      _pinCodeStateInput.pinInputRepeat = _pinCodeStateInput.pinInputRepeat.substring(0, _pinCodeStateInput.pinInputRepeat.length - 1);
-      log('pinInputRepeat in viewModel = ${_pinCodeStateInput.pinInputRepeat}');
-      updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
-    } else {
-      if (_pinCodeStateInput.pinInput.isNotEmpty) {
-        _pinCodeStateInput.pinInput = _pinCodeStateInput.pinInput.substring(0, _pinCodeStateInput.pinInput.length - 1);
-        log('pinInput in viewModel = ${_pinCodeStateInput.pinInput}');
-        updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
-      }
-    }
-    notifyListeners();
-  }
 
   String setText() {
     if (!_pinCodeStateInput.isFirstTry) {
