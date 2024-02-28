@@ -50,9 +50,18 @@ class ListViewPictureOfTheDay extends StatelessWidget {
               const SizedBox(
                 height: 5,
               ),
-              Text(post.date.toString(), style: const TextStyle(fontSize: 16)),
-              Image.network(post.url!),
-              Text(post.explanation!, style: const TextStyle(fontSize: 18)),
+              Text(
+                post.date.toString(),
+                style: const TextStyle(fontSize: 16),
+              ),
+              Image.network(
+                post.url!,
+                fit: BoxFit.contain,
+              ),
+              Text(
+                post.explanation!,
+                style: const TextStyle(fontSize: 18),
+              ),
               const SizedBox(
                 height: 5,
               ),

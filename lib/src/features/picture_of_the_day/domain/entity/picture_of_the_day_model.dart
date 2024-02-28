@@ -1,10 +1,8 @@
-
 import 'package:json_annotation/json_annotation.dart';
 part 'picture_of_the_day_model.g.dart';
 
 @JsonSerializable()
 class PictureOfTheDayModel {
-
   PictureOfTheDayModel({
     required this.date,
     required this.explanation,
@@ -16,31 +14,23 @@ class PictureOfTheDayModel {
     this.copyright,
   });
 
-  factory PictureOfTheDayModel.fromJson(Map<String, dynamic> json) => _$PictureOfTheDayModelFromJson(json);
-  @JsonKey(name: 'date')
+  factory PictureOfTheDayModel.fromJson(Map<String, dynamic> json) =>
+      _$PictureOfTheDayModelFromJson(json);
   final DateTime? date;
-  @JsonKey(name: 'explanation')
   final String? explanation;
-  @JsonKey(name: 'hdurl')
   final String? hdurl;
   @JsonKey(name: 'media_type')
   final MediaType? mediaType;
   @JsonKey(name: 'service_version')
   final ServiceVersion? serviceVersion;
-  @JsonKey(name: 'title')
   final String? title;
-  @JsonKey(name: 'url')
   final String? url;
-  @JsonKey(name: 'copyright')
   final String? copyright;
 
   Map<String, dynamic> toJson() => _$PictureOfTheDayModelToJson(this);
 }
 
-enum MediaType {
-  image,
-  video
-}
+enum MediaType { image, video }
 
 final mediaTypeValues = EnumValues({
   'image': MediaType.image,
@@ -57,10 +47,7 @@ final serviceVersionValues = EnumValues({
 });
 
 class EnumValues<T> {
-
   EnumValues(this.map);
   Map<String, T> map;
   late Map<T, String> reverseMap;
-
-
 }

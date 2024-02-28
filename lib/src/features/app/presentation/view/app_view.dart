@@ -15,7 +15,8 @@ class AppView extends StatelessWidget {
         // TODO(add): fix if it would be several themes
         themeMode: ThemeMode.light,
         home: ChangeNotifierProvider(
-            create: (_) => PictureOfTheDayViewModel(),
-            child: const PictureOfTheDayView(),),
+          create: (_) => PictureOfTheDayViewModel(),
+          child: const PictureOfTheDayView(),
+        ),
       );
 }

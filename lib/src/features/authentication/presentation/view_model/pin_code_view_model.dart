@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:cosmo_news_to_do/src/features/authentication/domain/pin_repo.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
-import 'package:flutter/cupertino.dart';
-
+import 'package:flutter/foundation.dart';
 
 class PinCodeStateInput {
   PinCodeStateInput()
@@ -14,11 +13,15 @@ class PinCodeStateInput {
   String pinInput;
   String pinInputRepeat;
   bool isFirstTry;
+
+  bool bothPinsEntered(int pinLength) =>
+      pinInput.length == pinLength && pinInputRepeat.length == pinLength;
 }
 
 class PinCodeViewModel extends ChangeNotifier {
   PinCodeViewModel() {
-    _pinCodeStateStreamController = StreamController<AuthenticationState>.broadcast();
+    _pinCodeStateStreamController =
+        StreamController<AuthenticationState>.broadcast();
     init();
   }
 
@@ -59,15 +62,16 @@ class PinCodeViewModel extends ChangeNotifier {
     }
   }
 
-
   void onButtonDeleteClick() {
     if (_pinCodeStateInput.pinInputRepeat.isNotEmpty) {
-      _pinCodeStateInput.pinInputRepeat = _pinCodeStateInput.pinInputRepeat.substring(0, _pinCodeStateInput.pinInputRepeat.length - 1);
+      _pinCodeStateInput.pinInputRepeat = _pinCodeStateInput.pinInputRepeat
+          .substring(0, _pinCodeStateInput.pinInputRepeat.length - 1);
       log('pinInputRepeat in viewModel = ${_pinCodeStateInput.pinInputRepeat}');
       updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
     } else {
       if (_pinCodeStateInput.pinInput.isNotEmpty) {
-        _pinCodeStateInput.pinInput = _pinCodeStateInput.pinInput.substring(0, _pinCodeStateInput.pinInput.length - 1);
+        _pinCodeStateInput.pinInput = _pinCodeStateInput.pinInput
+            .substring(0, _pinCodeStateInput.pinInput.length - 1);
         log('pinInput in viewModel = ${_pinCodeStateInput.pinInput}');
         updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
       }
@@ -92,12 +96,10 @@ class PinCodeViewModel extends ChangeNotifier {
     } else if (_pinCodeStateInput.pinInputRepeat.length < 4) {
       _addToPinInputRepeat(number);
     }
-    if (_bothPinsEntered()) {
+    if (_pinCodeStateInput.bothPinsEntered(4)) {
       await _checkCodes();
     }
   }
-
-  bool _bothPinsEntered() => _pinCodeStateInput.pinInput.length == 4 && _pinCodeStateInput.pinInputRepeat.length == 4;
 
   void _addToPinInput(String number) {
     _pinCodeStateInput.pinInput += number;
@@ -113,10 +115,14 @@ class PinCodeViewModel extends ChangeNotifier {
 
   /// сравнение введенного пин кода с сохраненным
   void _comparePins() {
-    if (_havePinFromStorage && (_pinCodeStateInput.pinInput.length == 4) && _pinFromStorage == _pinCodeStateInput.pinInput) {
+    if (_havePinFromStorage &&
+        (_pinCodeStateInput.pinInput.length == 4) &&
+        _pinFromStorage == _pinCodeStateInput.pinInput) {
       updateState(PinCodeAuthenticated());
     }
-    if (_havePinFromStorage && (_pinCodeStateInput.pinInput.length == 4) && _pinFromStorage != _pinCodeStateInput.pinInput) {
+    if (_havePinFromStorage &&
+        (_pinCodeStateInput.pinInput.length == 4) &&
+        _pinFromStorage != _pinCodeStateInput.pinInput) {
       _handleMismatch();
     }
   }
@@ -135,12 +141,15 @@ class PinCodeViewModel extends ChangeNotifier {
   Future<void> _authenticateUser() async {
     try {
       updateState(const PinCodeLoading());
-      await _pinSecureStorageRepo.savePinCode(_pinCodeStateInput.pinInputRepeat);
+      await _pinSecureStorageRepo
+          .savePinCode(_pinCodeStateInput.pinInputRepeat);
       updateState(PinCodeAuthenticated());
     } on Object {
       updateState(
         const PinCodeError(message: 'Не удалось сохранить пин код'),
       );
+
+      rethrow;
     }
   }
 
@@ -154,10 +163,10 @@ class PinCodeViewModel extends ChangeNotifier {
 
   void _clear() {
     log('Ввод очищен = $_pinCodeStateInput.pinInput $_pinCodeStateInput.pinInputRepeat ');
-    _pinCodeStateInput..pinInput = ''
-    ..pinInputRepeat = '';
+    _pinCodeStateInput
+      ..pinInput = ''
+      ..pinInputRepeat = '';
   }
-
 
   String setText() {
     if (!_pinCodeStateInput.isFirstTry) {

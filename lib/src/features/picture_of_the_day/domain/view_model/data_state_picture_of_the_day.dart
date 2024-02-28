@@ -3,27 +3,30 @@ import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/p
 sealed class PictureOfTheDayDataState {
   List<PictureOfTheDayModel> get pictureOfTheDayResponseData;
 }
-//успешное получение данных
-final class PictureOfTheDayDataStateSuccess implements PictureOfTheDayDataState{
-const PictureOfTheDayDataStateSuccess({
+
+/// успешное получение данных
+final class PictureOfTheDayDataStateSuccess
+    implements PictureOfTheDayDataState {
+  // успешное получение данных
+  const PictureOfTheDayDataStateSuccess({
     required this.pictureOfTheDayResponseData,
   });
 
-@override
+  @override
   final List<PictureOfTheDayModel> pictureOfTheDayResponseData;
 }
 
 //загрузка данных
-final class PictureOfTheDayDataStateLoading implements PictureOfTheDayDataState{
-PictureOfTheDayDataStateLoading() : pictureOfTheDayResponseData = [];
+final class PictureOfTheDayDataStateLoading
+    implements PictureOfTheDayDataState {
+  PictureOfTheDayDataStateLoading() : pictureOfTheDayResponseData = [];
 
   @override
   List<PictureOfTheDayModel> pictureOfTheDayResponseData;
 }
 
 //ошибка
-final class PictureOfTheDayDataStateError implements PictureOfTheDayDataState{
-
+final class PictureOfTheDayDataStateError implements PictureOfTheDayDataState {
   const PictureOfTheDayDataStateError({
     required this.pictureOfTheDayResponseData,
     required this.message,
@@ -31,6 +34,4 @@ final class PictureOfTheDayDataStateError implements PictureOfTheDayDataState{
   @override
   final List<PictureOfTheDayModel> pictureOfTheDayResponseData;
   final String message;
-
 }
-
