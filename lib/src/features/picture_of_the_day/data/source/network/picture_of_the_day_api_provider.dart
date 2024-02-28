@@ -10,6 +10,7 @@ class PictureOfTheDayApiProvider {
     required Dio client,
   }) : _client = client;
   final Dio _client;
+
   Future<List<Map<String, dynamic>>> getPictures(DateTime startDate) async {
     try {
       final response = await _client.get<List<Object?>>(
@@ -28,21 +29,21 @@ class PictureOfTheDayApiProvider {
     } on DioException catch (e) {
       // switch(e.type) {
       //   case DioExceptionType.connectionTimeout:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.sendTimeout:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.receiveTimeout:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.badCertificate:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.badResponse:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.cancel:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.connectionError:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       //   case DioExceptionType.unknown:
-      //     // TODO: Handle this case.
+      //     // `TODO`: Handle this case.
       // }
       // switch (e.response?.statusCode) {}
       Error.throwWithStackTrace(Exception(e), e.stackTrace);

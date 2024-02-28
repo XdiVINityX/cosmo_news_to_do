@@ -1,25 +1,26 @@
 import 'dart:developer';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/entity/pin_code_state_input.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/view_model/pin_code_view_model/authentication_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
-import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/widget/number_pad.dart';
+import 'package:cosmo_news_to_do/src/features/todo_list/domain/view_model/todo_list_view_view_model/todo_list_view_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/todo_list/presentation/view/todo_list_view.dart';
-import 'package:cosmo_news_to_do/src/features/todo_list/presentation/view_model/todo_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class PinCodeView extends StatefulWidget {
-  const PinCodeView({super.key});
+class AuthenticationView extends StatefulWidget {
+  const AuthenticationView({super.key});
 
   @override
-  State<PinCodeView> createState() => _PinCodeWidgetState();
+  State<AuthenticationView> createState() => _PinCodeWidgetState();
 }
 
-class _PinCodeWidgetState extends State<PinCodeView> {
+class _PinCodeWidgetState extends State<AuthenticationView> {
   @override
   void initState() {
     super.initState();
     context
-        .read<PinCodeViewModel>()
+        .read<AuthenticationViewModel>()
         .pinCodeStateStream
         .listen(_pinCodeStateListener);
   }
@@ -29,7 +30,7 @@ class _PinCodeWidgetState extends State<PinCodeView> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<dynamic>(
           builder: (context) => ChangeNotifierProvider(
-            create: (_) => TodoListViewModel(),
+            create: (_) => TodoListViewViewModel(),
             child: const TodoListScreen(),
           ),
         ),
@@ -39,7 +40,7 @@ class _PinCodeWidgetState extends State<PinCodeView> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.read<PinCodeViewModel>();
+    final viewModel = context.read<AuthenticationViewModel>();
     return Scaffold(
       body: SafeArea(
         child: StreamBuilder<AuthenticationState>(
@@ -73,7 +74,7 @@ class TextPinWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<PinCodeViewModel>();
+    final viewModel = context.watch<AuthenticationViewModel>();
     return Text(
       viewModel.setText(),
       style: const TextStyle(fontSize: 24),
@@ -100,7 +101,7 @@ class _PinCodeAreaState extends State<PinCodeArea> {
   }
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<PinCodeViewModel>();
+    final viewModel = context.watch<AuthenticationViewModel>();
     viewModel.pinCodeStateStream.listen(_pinCodeStateListener);
 
     return Row(

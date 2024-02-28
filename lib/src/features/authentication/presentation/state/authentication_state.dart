@@ -1,4 +1,4 @@
-import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/entity/pin_code_state_input.dart';
 
 sealed class AuthenticationState {}
 

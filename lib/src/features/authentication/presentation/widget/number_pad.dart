@@ -1,4 +1,4 @@
-import 'package:cosmo_news_to_do/src/features/authentication/presentation/view_model/pin_code_view_model.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/view_model/pin_code_view_model/authentication_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +9,7 @@ class NumberPad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.read<PinCodeViewModel>();
+    final viewModel = context.read<AuthenticationViewModel>();
     return FractionallySizedBox(
       widthFactor: 0.6,
       child: GridView.builder(

@@ -1,4 +1,4 @@
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/data/network/picture_of_the_day_api_provider.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/data/source/network/picture_of_the_day_api_provider.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
 import 'package:dio/dio.dart';
 
@@ -23,7 +23,7 @@ class PictureOfTheDayRepo {
       return pictures;
     } on FormatException catch (e, s) {
       Error.throwWithStackTrace(
-          Exception('Failed to parse picture of the day: $e'), s);
+          Exception('Failed to parse picture of the day: $e'), s,);
     } on Object {
       rethrow;
     }

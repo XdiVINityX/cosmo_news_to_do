@@ -1,9 +1,9 @@
-import 'package:cosmo_news_to_do/src/features/authentication/data/source/local/i_pin_secure_storage.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/interface/pin_code_secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const pinKey = 'pinKey';
 
-class SecureStorage implements IPinSecureStorage {
+class SecureStorage implements PinCodeSecureStorage {
   const SecureStorage();
   final _storage = const FlutterSecureStorage();
 

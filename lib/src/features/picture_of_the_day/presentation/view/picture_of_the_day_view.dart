@@ -1,6 +1,7 @@
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/data_state_picture_of_the_day.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/data_state_picture_of_the_day.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_view_model.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -54,12 +55,25 @@ class ListViewPictureOfTheDay extends StatelessWidget {
                 post.date.toString(),
                 style: const TextStyle(fontSize: 16),
               ),
-              Image.network(
-                post.url!,
-                fit: BoxFit.contain,
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<dynamic>(
+                      builder: (context) => PictureDetailView(post: post),
+                    ),
+                  );
+                },
+                child: Hero(
+                  tag: post.url!,
+                  child: FadeInImage.assetNetwork(
+                    placeholder: 'assets',
+                    // TODO(add): если url - null, то ссылка будет на пустой ассет
+                    image: post.url!,
+                  ),
+                ),
               ),
               Text(
-                post.explanation!,
+                post.explanation ?? '',
                 style: const TextStyle(fontSize: 18),
               ),
               const SizedBox(
@@ -72,3 +86,5 @@ class ListViewPictureOfTheDay extends StatelessWidget {
     );
   }
 }
+
+

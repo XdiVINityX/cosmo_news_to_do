@@ -1,25 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:cosmo_news_to_do/src/features/authentication/domain/pin_repo.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/data/repository/authentication_repository.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/entity/pin_code_state_input.dart';
+import 'package:cosmo_news_to_do/src/features/authentication/domain/interface/pin_code_secure_storage_repository.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:flutter/foundation.dart';
 
-class PinCodeStateInput {
-  PinCodeStateInput()
-      : isFirstTry = true,
-        pinInput = '',
-        pinInputRepeat = '';
 
-  String pinInput;
-  String pinInputRepeat;
-  bool isFirstTry;
 
-  bool bothPinsEntered(int pinLength) =>
-      pinInput.length == pinLength && pinInputRepeat.length == pinLength;
-}
-
-class PinCodeViewModel extends ChangeNotifier {
-  PinCodeViewModel() {
+class AuthenticationViewModel extends ChangeNotifier {
+  AuthenticationViewModel() {
     _pinCodeStateStreamController =
         StreamController<AuthenticationState>.broadcast();
     init();
@@ -29,18 +19,18 @@ class PinCodeViewModel extends ChangeNotifier {
   late StreamController<AuthenticationState> _pinCodeStateStreamController;
   Stream<AuthenticationState> get pinCodeStateStream =>
       _pinCodeStateStreamController.stream;
-  late final PinSecureStorageRepo _pinSecureStorageRepo;
+  late final PinSecureStorageRepository _pinRepository;
   late String? _pinFromStorage;
   late bool _havePinFromStorage;
 
   Future<void> init() async {
-    updateState(PinCodeLoading());
+    _updateState(const PinCodeLoading());
     _pinCodeStateInput = PinCodeStateInput();
-    _pinSecureStorageRepo = PinSecureStorageRepo();
+    _pinRepository = AuthenticationRepository();
     // await _pinSecureStorageRepo.deletePinCode();
-    _pinFromStorage = await _pinSecureStorageRepo.getPinCode();
+    _pinFromStorage = await _pinRepository.getPinCode();
     _havePinFromStorage = _pinFromStorage != null;
-    updateState(PinCodeLoaded(pinCodeState: _pinCodeStateInput));
+    _updateState(PinCodeLoaded(pinCodeState: _pinCodeStateInput));
   }
 
   @override
@@ -49,7 +39,7 @@ class PinCodeViewModel extends ChangeNotifier {
     _pinCodeStateStreamController.close();
   }
 
-  void updateState(AuthenticationState pinState) {
+  void _updateState(AuthenticationState pinState) {
     _pinCodeStateStreamController.add(pinState);
   }
 
@@ -58,7 +48,7 @@ class PinCodeViewModel extends ChangeNotifier {
       _handleHavePin(number);
     } else {
       await _handleNoPin(number);
-      updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
+      _updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
     }
   }
 
@@ -67,13 +57,13 @@ class PinCodeViewModel extends ChangeNotifier {
       _pinCodeStateInput.pinInputRepeat = _pinCodeStateInput.pinInputRepeat
           .substring(0, _pinCodeStateInput.pinInputRepeat.length - 1);
       log('pinInputRepeat in viewModel = ${_pinCodeStateInput.pinInputRepeat}');
-      updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
+      _updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
     } else {
       if (_pinCodeStateInput.pinInput.isNotEmpty) {
         _pinCodeStateInput.pinInput = _pinCodeStateInput.pinInput
             .substring(0, _pinCodeStateInput.pinInput.length - 1);
         log('pinInput in viewModel = ${_pinCodeStateInput.pinInput}');
-        updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
+        _updateState(PinCodeChangedInput(pinCodeState: _pinCodeStateInput));
       }
     }
     notifyListeners();
@@ -118,7 +108,7 @@ class PinCodeViewModel extends ChangeNotifier {
     if (_havePinFromStorage &&
         (_pinCodeStateInput.pinInput.length == 4) &&
         _pinFromStorage == _pinCodeStateInput.pinInput) {
-      updateState(PinCodeAuthenticated());
+      _updateState(PinCodeAuthenticated());
     }
     if (_havePinFromStorage &&
         (_pinCodeStateInput.pinInput.length == 4) &&
@@ -140,12 +130,12 @@ class PinCodeViewModel extends ChangeNotifier {
   /// Сохраняем введенный пин и обновляем статус
   Future<void> _authenticateUser() async {
     try {
-      updateState(const PinCodeLoading());
-      await _pinSecureStorageRepo
+      _updateState(const PinCodeLoading());
+      await _pinRepository
           .savePinCode(_pinCodeStateInput.pinInputRepeat);
-      updateState(PinCodeAuthenticated());
+      _updateState(PinCodeAuthenticated());
     } on Object {
-      updateState(
+      _updateState(
         const PinCodeError(message: 'Не удалось сохранить пин код'),
       );
 
