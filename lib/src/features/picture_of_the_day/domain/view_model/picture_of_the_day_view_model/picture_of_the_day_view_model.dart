@@ -3,24 +3,22 @@ import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/p
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/data_state_picture_of_the_day.dart';
 import 'package:flutter/foundation.dart';
 
-
+// TODO(req): req repo
 class PictureOfTheDayViewModel extends ChangeNotifier {
-  PictureOfTheDayViewModel(){
+  PictureOfTheDayViewModel(this._repository){
     state = PictureOfTheDayDataStateLoading();
     init();
 }
-
+  final PictureOfTheDayRepo _repository;
   late  PictureOfTheDayDataState state;
-  late final PictureOfTheDayRepo _repo;
-  final List<PictureOfTheDayModel> dataListObj = [];
+  final List<PictureOfTheDayModel> picturesOfTheDay = [];
 
   Future<void> init() async {
-    _repo = PictureOfTheDayRepo();
+
     // TODO(error): check error.
-    final data = await _repo.getPictures();
-    data.forEach(dataListObj.add);
-    state = PictureOfTheDayDataStateSuccess(pictureOfTheDayResponseData: dataListObj );
+    final data = await _repository.getPictures();
+    data.forEach(picturesOfTheDay.add);
+    state = PictureOfTheDayDataStateSuccess(pictureOfTheDayResponseData: picturesOfTheDay );
     notifyListeners();
   }
-
 }

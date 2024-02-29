@@ -2,6 +2,7 @@ import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/p
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/data_state_picture_of_the_day.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_detail_view.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/widget/picture_of_the_day_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,8 +19,8 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
     final viewModel = context.read<PictureOfTheDayViewModel>();
     return SafeArea(
       child: Scaffold(
-        body: ListViewPictureOfTheDay(
-          data: viewModel.dataListObj,
+        body: PictureOfTheDayList(
+          picturesOfTheDay: viewModel.picturesOfTheDay,
         ),
       ),
     );
@@ -27,13 +28,31 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
 }
 
 // TODO(improve): посты определенного размера, скрытие лишнего текта
-class ListViewPictureOfTheDay extends StatelessWidget {
-  const ListViewPictureOfTheDay({
+///Список постов
+class PictureOfTheDayList extends StatelessWidget {
+  const PictureOfTheDayList({
     super.key,
-    required this.data,
+    required this.picturesOfTheDay,
   });
 
-  final List<PictureOfTheDayModel> data;
+  final List<PictureOfTheDayModel> picturesOfTheDay;
+
+  void _goToScreen(
+    BuildContext context, {
+    required String? url,
+    required DateTime? date,
+    required String? explanation,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute<dynamic>(
+        builder: (context) => PictureDetailView(
+          url: url,
+          date: date,
+          explanation: explanation,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,49 +61,17 @@ class ListViewPictureOfTheDay extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
     return ListView.builder(
-      itemCount: data.length,
+      itemCount: picturesOfTheDay.length,
       itemBuilder: (context, index) {
-        final post = data[index];
-        return Card(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 5,
-              ),
-              Text(
-                post.date.toString(),
-                style: const TextStyle(fontSize: 16),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<dynamic>(
-                      builder: (context) => PictureDetailView(post: post),
-                    ),
-                  );
-                },
-                child: Hero(
-                  tag: post.url!,
-                  child: FadeInImage.assetNetwork(
-                    placeholder: 'assets',
-                    // TODO(add): если url - null, то ссылка будет на пустой ассет
-                    image: post.url!,
-                  ),
-                ),
-              ),
-              Text(
-                post.explanation ?? '',
-                style: const TextStyle(fontSize: 18),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-            ],
-          ),
+        final post = picturesOfTheDay[index];
+        return PictureOfTheDayItem(
+          url: post.url,
+          date: post.date,
+          explanation: post.explanation,
+          onTap: () => _goToScreen(context,
+              url: post.url, date: post.date, explanation: post.explanation,),
         );
       },
     );
   }
 }
-
-

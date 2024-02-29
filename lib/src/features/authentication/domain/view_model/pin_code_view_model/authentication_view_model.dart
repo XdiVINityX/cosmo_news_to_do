@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:cosmo_news_to_do/src/features/authentication/data/repository/authentication_repository.dart';
 import 'package:cosmo_news_to_do/src/features/authentication/domain/entity/pin_code_state_input.dart';
-import 'package:cosmo_news_to_do/src/features/authentication/domain/interface/pin_code_secure_storage_repository.dart';
+
 import 'package:cosmo_news_to_do/src/features/authentication/presentation/state/authentication_state.dart';
 import 'package:flutter/foundation.dart';
 
@@ -19,7 +19,8 @@ class AuthenticationViewModel extends ChangeNotifier {
   late StreamController<AuthenticationState> _pinCodeStateStreamController;
   Stream<AuthenticationState> get pinCodeStateStream =>
       _pinCodeStateStreamController.stream;
-  late final PinSecureStorageRepository _pinRepository;
+  // TODO(add): провайдить репозиторий и бд
+  late final IPinSecureStorageRepository _pinRepository;
   late String? _pinFromStorage;
   late bool _havePinFromStorage;
 

@@ -1,8 +1,6 @@
 import 'package:cosmo_news_to_do/src/features/authentication/data/source/local/secure_storage.dart';
-import 'package:cosmo_news_to_do/src/features/authentication/domain/interface/pin_code_secure_storage.dart';
-import 'package:cosmo_news_to_do/src/features/authentication/domain/interface/pin_code_secure_storage_repository.dart';
 
-class AuthenticationRepository implements PinSecureStorageRepository {
+class AuthenticationRepository implements IPinSecureStorageRepository {
   AuthenticationRepository() {
     _pinSecureStorage = const SecureStorage();
   }
@@ -19,3 +17,12 @@ class AuthenticationRepository implements PinSecureStorageRepository {
   @override
   Future<void> deletePinCode() async =>  _pinSecureStorage.deletePinCode();
 }
+
+abstract interface class IPinSecureStorageRepository {
+  Future<void> savePinCode(String pin);
+
+  Future<String?> getPinCode();
+
+  Future<void> deletePinCode();
+}
+

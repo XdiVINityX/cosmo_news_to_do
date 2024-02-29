@@ -1,4 +1,3 @@
-import 'package:cosmo_news_to_do/src/features/authentication/domain/interface/pin_code_secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const pinKey = 'pinKey';
@@ -22,3 +21,12 @@ class SecureStorage implements PinCodeSecureStorage {
     await _storage.write(key: pinKey, value: pin);
   }
 }
+
+abstract interface class PinCodeSecureStorage {
+  Future<void> savePinCode(String pin);
+
+  Future<String?> getPinCode();
+
+  Future<void> deletePinCode();
+}
+
