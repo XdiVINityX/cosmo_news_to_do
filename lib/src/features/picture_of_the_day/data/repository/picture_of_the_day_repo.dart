@@ -5,36 +5,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
 class PictureOfTheDayRepo {
-
   const PictureOfTheDayRepo({
     required this.pictureOfTheDayApiProvider,
   });
 
   final PictureOfTheDayApiProvider pictureOfTheDayApiProvider;
 
-
   Future<List<PictureOfTheDayModel>> getPictures() async {
-
-
     try {
       final picturesMap = await pictureOfTheDayApiProvider
+
+          // TODO(fix): Hard date????
           .getPictures(DateTime.now().copyWith(month: 1));
       final pictures = picturesMap.map(PictureOfTheDayModel.fromJson).toList();
       return pictures;
     } on FormatException catch (e, s) {
       Error.throwWithStackTrace(
-          Exception('Failed to parse picture of the day: $e'), s,);
+        Exception('Failed to parse picture of the day: $e'),
+        s,
+      );
     } on Object {
       rethrow;
     }
-    // final List<PictureOfTheDayModel> dataListObj = [];
-    // final response =
-    //     await _pictureOfTheDayApiProvider.getPictures() as List<dynamic>
-    //       ..forEach((element) {
-    //         final pictureOfTheDay =
-    //             PictureOfTheDayModel.fromJson(element as Map<String, dynamic>);
-    //         dataListObj.add(pictureOfTheDay);
-    //       });
-    // return dataListObj;
   }
 }

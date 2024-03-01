@@ -7,16 +7,17 @@ class PictureDetailView extends StatelessWidget {
   final String? url;
   final String? explanation;
 
-
-
   @override
-  Widget build(BuildContext context) =>  Scaffold(
-    backgroundColor: Colors.black,
-      body: Center(
-        child: Hero(
-          tag: url!,
-          child: Image.network(url!),
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: Navigator.of(context).pop,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Center(
+            child: Hero(
+              tag: url!,
+              child: Image.network(url!),
+            ),
+          ),
         ),
-      ),
-    );
+      );
 }

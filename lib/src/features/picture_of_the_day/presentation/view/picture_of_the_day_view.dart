@@ -15,16 +15,20 @@ class PictureOfTheDayView extends StatefulWidget {
 
 class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
   @override
-  Widget build(BuildContext context) {
-    final viewModel = context.read<PictureOfTheDayViewModel>();
-    return SafeArea(
-      child: Scaffold(
-        body: PictureOfTheDayList(
-          picturesOfTheDay: viewModel.picturesOfTheDay,
+  Widget build(BuildContext context) => Scaffold(
+        body: Consumer<PictureOfTheDayViewModel>(
+          builder: (context, viewModel, child) => switch (viewModel.state) {
+            PictureOfTheDayDataStateLoading() =>
+              const Center(child: CircularProgressIndicator()),
+            final PictureOfTheDayDataStateSuccess s => PictureOfTheDayList(
+                picturesOfTheDay: s.pictureOfTheDayResponseData,
+              ),
+            final PictureOfTheDayDataStateError e => Center(
+                child: Text(e.message),
+              ),
+          },
         ),
-      ),
-    );
-  }
+      );
 }
 
 // TODO(improve): посты определенного размера, скрытие лишнего текта
@@ -55,23 +59,21 @@ class PictureOfTheDayList extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final viewModel = context.watch<PictureOfTheDayViewModel>();
-    if (viewModel.state is PictureOfTheDayDataStateLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return ListView.builder(
-      itemCount: picturesOfTheDay.length,
-      itemBuilder: (context, index) {
-        final post = picturesOfTheDay[index];
-        return PictureOfTheDayItem(
-          url: post.url,
-          date: post.date,
-          explanation: post.explanation,
-          onTap: () => _goToScreen(context,
-              url: post.url, date: post.date, explanation: post.explanation,),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => ListView.builder(
+        itemCount: picturesOfTheDay.length,
+        itemBuilder: (context, index) {
+          final post = picturesOfTheDay[index];
+          return PictureOfTheDayItem(
+            url: post.url,
+            date: post.date,
+            explanation: post.explanation,
+            onTap: () => _goToScreen(
+              context,
+              url: post.url,
+              date: post.date,
+              explanation: post.explanation,
+            ),
+          );
+        },
+      );
 }
