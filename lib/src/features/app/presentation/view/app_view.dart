@@ -4,13 +4,15 @@ import 'package:cosmo_news_to_do/src/features/picture_of_the_day/data/repository
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/data/source/network/picture_of_the_day_api_provider.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_of_the_day_view.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 
 
 class AppView extends StatelessWidget {
-  const AppView({super.key});
+  AppView({super.key});
+
 
 
 // TODO(add): multirovider with repo,dio above materialApp
