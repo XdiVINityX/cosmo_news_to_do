@@ -12,7 +12,7 @@ void _runApp() {
   runZonedGuarded(() {
     /// some initializations like native splash or progress counter
     /// dependency injection and smthing like this
-    runApp(AppView());
+    runApp(const AppView());
   }, (error, stack) {
     /// send errors to crashlitycs
     /// debug print errors, didnt catched above

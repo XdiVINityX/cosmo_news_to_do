@@ -1,8 +1,20 @@
 import 'package:dio/dio.dart';
 
-class DioAppScope {
-  final Dio _dio = Dio(BaseOptions())
-    ..interceptors.add(LogInterceptor(error: true, request: true));
+class AppScope {
+  AppScope() {
+    _dio = _initDio();
+  }
+  late final Dio _dio;
+  Dio get dio => _dio;
+
+  Dio _initDio() {
+    final dio = Dio();
+    dio.options
+      ..baseUrl = 'https://api.nasa.gov/'
+      ..connectTimeout = const Duration(seconds: 15)
+      ..receiveTimeout = const Duration(seconds: 15);
+    return dio;
+  }
 
   Future<List<Map<String, dynamic>>> get(
     String baseUrl, {

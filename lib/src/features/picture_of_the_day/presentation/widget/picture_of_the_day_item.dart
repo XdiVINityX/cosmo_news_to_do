@@ -16,25 +16,25 @@ class PictureOfTheDayItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-      child: Column(
-        children: [
-          if (date != null)
-            Text(
-              date.toString(),
-              style: const TextStyle(fontSize: 16),
+        child: Column(
+          children: [
+            if (date != null)
+              Text(
+                date.toString(),
+                style: const TextStyle(fontSize: 16),
+              ),
+            HeroImage(
+              url: url,
+              onTap: onTap,
             ),
-          HeroImage(
-            url: url,
-            onTap: onTap,
-          ),
-          if (explanation != null)
-            Text(
-              explanation!,
-              style: const TextStyle(fontSize: 18),
-            ),
-        ],
-      ),
-    );
+            if (explanation != null)
+              Text(
+                explanation!,
+                style: const TextStyle(fontSize: 18),
+              ),
+          ],
+        ),
+      );
 }
 
 class HeroImage extends StatelessWidget {
@@ -54,6 +54,8 @@ class HeroImage extends StatelessWidget {
           tag: url!,
           child: FadeInImage.assetNetwork(
             placeholder: 'assets',
+            placeholderErrorBuilder: (context, error, stackTrace) =>
+                const FlutterLogo(),
             // TODO(add): если url - null, то ссылка будет на пустой ассет
             image: url!,
           ),
