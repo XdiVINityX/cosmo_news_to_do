@@ -29,4 +29,3 @@ abstract interface class PinCodeSecureStorage {
 
   Future<void> deletePinCode();
 }
-

@@ -10,8 +10,6 @@ import 'package:provider/provider.dart';
 class AppView extends StatelessWidget {
   const AppView({super.key});
 
-
-// TODO(add): multirovider with repo,dio above materialApp
   @override
   Widget build(BuildContext context) {
     final appScope = AppScope();

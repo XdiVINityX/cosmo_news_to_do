@@ -31,15 +31,29 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
       );
 }
 
-// TODO(improve): посты определенного размера, скрытие лишнего текта
+
 ///Список постов
-class PictureOfTheDayList extends StatelessWidget {
+class PictureOfTheDayList extends StatefulWidget {
   const PictureOfTheDayList({
     super.key,
     required this.picturesOfTheDay,
   });
 
   final List<PictureOfTheDayModel> picturesOfTheDay;
+
+  @override
+  State<PictureOfTheDayList> createState() => _PictureOfTheDayListState();
+}
+
+class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
+  late final ScrollController scrollController;
+
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController()..addListener(_onScroll);
+  }
 
   void _goToScreen(
     BuildContext context, {
@@ -60,20 +74,28 @@ class PictureOfTheDayList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView.builder(
-        itemCount: picturesOfTheDay.length,
+        controller: scrollController,
+        itemCount: widget.picturesOfTheDay.length,
         itemBuilder: (context, index) {
-          final post = picturesOfTheDay[index];
-          return PictureOfTheDayItem(
-            url: post.url,
-            date: post.date,
-            explanation: post.explanation,
-            onTap: () => _goToScreen(
-              context,
+          final post = widget.picturesOfTheDay[index];
+            return PictureOfTheDayItem(
               url: post.url,
               date: post.date,
               explanation: post.explanation,
-            ),
-          );
+              onTap: () => _goToScreen(
+                context,
+                url: post.url,
+                date: post.date,
+                explanation: post.explanation,
+              ),
+            );
         },
       );
+
+  void _onScroll() {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent) {
+      context.read<PictureOfTheDayViewModel>().getPictures();
+    }
+  }
 }
