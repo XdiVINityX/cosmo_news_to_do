@@ -31,15 +31,14 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
       );
 }
 
-
 ///Список постов
 class PictureOfTheDayList extends StatefulWidget {
   const PictureOfTheDayList({
     super.key,
-    required this.picturesOfTheDay,
-  });
+    required List<PictureOfTheDayModel> picturesOfTheDay,
+  }) : _picturesOfTheDay = picturesOfTheDay;
 
-  final List<PictureOfTheDayModel> picturesOfTheDay;
+  final List<PictureOfTheDayModel> _picturesOfTheDay;
 
   @override
   State<PictureOfTheDayList> createState() => _PictureOfTheDayListState();
@@ -47,11 +46,12 @@ class PictureOfTheDayList extends StatefulWidget {
 
 class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
   late final ScrollController scrollController;
-
+  late List<PictureOfTheDayModel> picturesOfTheDay;
 
   @override
   void initState() {
     super.initState();
+    picturesOfTheDay = widget._picturesOfTheDay;
     scrollController = ScrollController()..addListener(_onScroll);
   }
 
@@ -75,27 +75,39 @@ class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
   @override
   Widget build(BuildContext context) => ListView.builder(
         controller: scrollController,
-        itemCount: widget.picturesOfTheDay.length,
+        itemCount: widget._picturesOfTheDay.length,
         itemBuilder: (context, index) {
-          final post = widget.picturesOfTheDay[index];
-            return PictureOfTheDayItem(
+          final post = widget._picturesOfTheDay[index];
+          return PictureOfTheDayItem(
+            url: post.url,
+            date: post.date,
+            explanation: post.explanation,
+            onTap: () => _goToScreen(
+              context,
               url: post.url,
               date: post.date,
               explanation: post.explanation,
-              onTap: () => _goToScreen(
-                context,
-                url: post.url,
-                date: post.date,
-                explanation: post.explanation,
-              ),
-            );
+            ),
+          );
         },
       );
 
   void _onScroll() {
     if (scrollController.position.pixels >=
         scrollController.position.maxScrollExtent) {
-      context.read<PictureOfTheDayViewModel>().getPictures();
+      loadMorePictures();
+    }
+  }
+
+  Future<void> loadMorePictures() async {
+    final viewModel = context.read<PictureOfTheDayViewModel>();
+    await viewModel.getPictures();
+    if (viewModel.state is PictureOfTheDayDataStateSuccess) {
+      final newPictures = (viewModel.state as PictureOfTheDayDataStateSuccess)
+          .pictureOfTheDayResponseData;
+      setState(() {
+        widget._picturesOfTheDay.addAll(newPictures);
+      });
     }
   }
 }
