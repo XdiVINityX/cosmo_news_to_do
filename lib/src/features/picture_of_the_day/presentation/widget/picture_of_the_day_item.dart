@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class PictureOfTheDayItem extends StatelessWidget {
+class PictureOfTheDayItem extends StatefulWidget {
   const PictureOfTheDayItem({
     super.key,
     this.date,
@@ -15,49 +16,87 @@ class PictureOfTheDayItem extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Card(
+  State<PictureOfTheDayItem> createState() => _PictureOfTheDayItemState();
+}
+
+class _PictureOfTheDayItemState extends State<PictureOfTheDayItem> {
+  late DateFormat dateFormatter;
+
+  @override
+  void initState() {
+    super.initState();
+    dateFormatter = DateFormat('yyyy-MM-dd');
+  }
+
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final  isYouTubeVideo = widget.url?.contains('youtube.com') ?? false;
+    return Card(
         child: Column(
           children: [
-            if (date != null)
+            if (widget.date != null)
               Text(
-                date.toString(),
+                dateFormatter.format(widget.date!),
                 style: const TextStyle(fontSize: 16),
               ),
+            if(widget.url != null && !isYouTubeVideo)
             HeroImage(
-              url: url,
-              onTap: onTap,
+              url: widget.url!,
+              onTap: widget.onTap,
             ),
-            if (explanation != null)
+            if (widget.explanation != null)
               Text(
-                explanation!,
+                widget.explanation!,
                 style: const TextStyle(fontSize: 18),
+                maxLines: isExpanded ? null : 6,
+              ),
+            if (widget.explanation != null)
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isExpanded = !isExpanded;
+                      });
+                    },
+                    child: Text(
+                      textAlign: TextAlign.left,
+                      isExpanded ? 'Скрыть' : 'Показать полностью',
+                      style: const TextStyle(fontSize: 18, color: Colors.blue),
+                    ),
+                  ),
+                ],
               ),
           ],
         ),
       );
+  }
 }
 
 class HeroImage extends StatelessWidget {
   const HeroImage({
     super.key,
-    this.url,
+    required this.url,
     required this.onTap,
   });
 
-  final String? url;
+  final String url;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Hero(
-          tag: url!,
+          tag: url,
           child: FadeInImage.assetNetwork(
-            placeholder: 'assets',
+            height: 250,
+            fit: BoxFit.contain,
+            placeholder:'' ,
             placeholderErrorBuilder: (context, error, stackTrace) =>
                 const FlutterLogo(),
-            // TODO(add): если url - null, то ссылка будет на пустой ассет
-            image: url!,
+            image: url,
           ),
         ),
       );

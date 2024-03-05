@@ -13,6 +13,20 @@ class ServerException extends AppException {
       case DioExceptionType.badCertificate:
         throw ServerException._(dioException, message: 'Неверный сертификат');
       case DioExceptionType.badResponse:
+        switch (dioException?.response?.statusCode) {
+          case 400:
+            throw ServerException._(dioException, message: 'Неверный запрос');
+          case 404:
+            throw ServerException._(
+              dioException,
+              message: 'Запрошенный ресурс не существует',
+            );
+          case 500:
+            throw ServerException._(dioException,
+                message: 'На сервера произошла ошибка',);
+          case null:
+            break;
+        }
         throw ServerException._(dioException, message: 'Неверный ответ');
       case DioExceptionType.cancel:
         throw ServerException._(dioException, message: 'отмена');
@@ -28,6 +42,7 @@ class ServerException extends AppException {
       dioException,
     );
   }
+
   ServerException._(
     DioException? exception, {
     super.message,

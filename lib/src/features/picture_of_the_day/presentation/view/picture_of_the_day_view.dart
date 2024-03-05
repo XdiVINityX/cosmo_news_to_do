@@ -31,15 +31,29 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
       );
 }
 
-// TODO(improve): посты определенного размера, скрытие лишнего текта
 ///Список постов
-class PictureOfTheDayList extends StatelessWidget {
+class PictureOfTheDayList extends StatefulWidget {
   const PictureOfTheDayList({
     super.key,
-    required this.picturesOfTheDay,
-  });
+    required List<PictureOfTheDayModel> picturesOfTheDay,
+  }) : _picturesOfTheDay = picturesOfTheDay;
 
-  final List<PictureOfTheDayModel> picturesOfTheDay;
+  final List<PictureOfTheDayModel> _picturesOfTheDay;
+
+  @override
+  State<PictureOfTheDayList> createState() => _PictureOfTheDayListState();
+}
+
+class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
+  late final ScrollController scrollController;
+  late List<PictureOfTheDayModel> picturesOfTheDay;
+
+  @override
+  void initState() {
+    super.initState();
+    picturesOfTheDay = widget._picturesOfTheDay;
+    scrollController = ScrollController()..addListener(_onScroll);
+  }
 
   void _goToScreen(
     BuildContext context, {
@@ -60,9 +74,10 @@ class PictureOfTheDayList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView.builder(
-        itemCount: picturesOfTheDay.length,
+        controller: scrollController,
+        itemCount: widget._picturesOfTheDay.length,
         itemBuilder: (context, index) {
-          final post = picturesOfTheDay[index];
+          final post = widget._picturesOfTheDay[index];
           return PictureOfTheDayItem(
             url: post.url,
             date: post.date,
@@ -76,4 +91,23 @@ class PictureOfTheDayList extends StatelessWidget {
           );
         },
       );
+
+  void _onScroll() {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent) {
+      loadMorePictures();
+    }
+  }
+
+  Future<void> loadMorePictures() async {
+    final viewModel = context.read<PictureOfTheDayViewModel>();
+    await viewModel.getPictures();
+    if (viewModel.state is PictureOfTheDayDataStateSuccess) {
+      final newPictures = (viewModel.state as PictureOfTheDayDataStateSuccess)
+          .pictureOfTheDayResponseData;
+      setState(() {
+        widget._picturesOfTheDay.addAll(newPictures);
+      });
+    }
+  }
 }

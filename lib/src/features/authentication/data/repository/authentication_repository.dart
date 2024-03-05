@@ -25,4 +25,3 @@ abstract interface class IPinSecureStorageRepository {
 
   Future<void> deletePinCode();
 }
-
