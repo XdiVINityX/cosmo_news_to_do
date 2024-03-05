@@ -1,8 +1,9 @@
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/data_state_picture_of_the_day.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_data_state.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_detail_view.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/widget/picture_of_the_day_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,13 +19,13 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
   Widget build(BuildContext context) => Scaffold(
         body: Consumer<PictureOfTheDayViewModel>(
           builder: (context, viewModel, child) => switch (viewModel.state) {
-            PictureOfTheDayDataStateLoading() =>
+            PictureOfTheDayDataStateInitial() =>
               const Center(child: CircularProgressIndicator()),
-            final PictureOfTheDayDataStateSuccess s => PictureOfTheDayList(
-                picturesOfTheDay: s.pictureOfTheDayResponseData,
-              ),
             final PictureOfTheDayDataStateError e => Center(
                 child: Text(e.message),
+              ),
+            _ => PictureOfTheDayList(
+                picturesOfTheDay: viewModel.state.pictureOfTheDayResponseData,
               ),
           },
         ),
@@ -35,24 +36,33 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
 class PictureOfTheDayList extends StatefulWidget {
   const PictureOfTheDayList({
     super.key,
-    required List<PictureOfTheDayModel> picturesOfTheDay,
-  }) : _picturesOfTheDay = picturesOfTheDay;
+    required this.picturesOfTheDay,
+  });
 
-  final List<PictureOfTheDayModel> _picturesOfTheDay;
+  final List<PictureOfTheDayModel> picturesOfTheDay;
 
   @override
   State<PictureOfTheDayList> createState() => _PictureOfTheDayListState();
 }
 
 class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
-  late final ScrollController scrollController;
-  late List<PictureOfTheDayModel> picturesOfTheDay;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    picturesOfTheDay = widget._picturesOfTheDay;
-    scrollController = ScrollController()..addListener(_onScroll);
+    _scrollController = ScrollController()..addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final vm = context.read<PictureOfTheDayViewModel>();
+    if (vm.state is PictureOfTheDayDataStateLoading) {
+      return;
+    }
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent) {
+      vm.loadMore();
+    }
   }
 
   void _goToScreen(
@@ -73,41 +83,33 @@ class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
   }
 
   @override
-  Widget build(BuildContext context) => ListView.builder(
-        controller: scrollController,
-        itemCount: widget._picturesOfTheDay.length,
-        itemBuilder: (context, index) {
-          final post = widget._picturesOfTheDay[index];
-          return PictureOfTheDayItem(
-            url: post.url,
-            date: post.date,
-            explanation: post.explanation,
-            onTap: () => _goToScreen(
-              context,
-              url: post.url,
-              date: post.date,
-              explanation: post.explanation,
-            ),
-          );
-        },
+  Widget build(BuildContext context) => CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverList.builder(
+            itemCount: widget.picturesOfTheDay.length,
+            itemBuilder: (context, index) {
+              final post = widget.picturesOfTheDay[index];
+              return PictureOfTheDayItem(
+                url: post.url,
+                date: post.date,
+                explanation: post.explanation,
+                onTap: () => _goToScreen(
+                  context,
+                  url: post.url,
+                  date: post.date,
+                  explanation: post.explanation,
+                ),
+              );
+            },
+          ),
+          if (context.watch<PictureOfTheDayViewModel>().state
+              is PictureOfTheDayDataStateLoading)
+            const SliverToBoxAdapter(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+        ],
       );
-
-  void _onScroll() {
-    if (scrollController.position.pixels >=
-        scrollController.position.maxScrollExtent) {
-      loadMorePictures();
-    }
-  }
-
-  Future<void> loadMorePictures() async {
-    final viewModel = context.read<PictureOfTheDayViewModel>();
-    await viewModel.getPictures();
-    if (viewModel.state is PictureOfTheDayDataStateSuccess) {
-      final newPictures = (viewModel.state as PictureOfTheDayDataStateSuccess)
-          .pictureOfTheDayResponseData;
-      setState(() {
-        widget._picturesOfTheDay.addAll(newPictures);
-      });
-    }
-  }
 }

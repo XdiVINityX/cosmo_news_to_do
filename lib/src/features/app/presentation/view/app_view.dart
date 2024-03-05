@@ -36,7 +36,8 @@ class AppView extends StatelessWidget {
         home: ChangeNotifierProvider(
           // TODO(add): read interface
           create: (_) =>
-              PictureOfTheDayViewModel(context.read<PictureOfTheDayRepo>()),
+              PictureOfTheDayViewModel(context.read<PictureOfTheDayRepo>())
+                ..loadPictures(),
           child: const PictureOfTheDayView(),
         ),
       ),

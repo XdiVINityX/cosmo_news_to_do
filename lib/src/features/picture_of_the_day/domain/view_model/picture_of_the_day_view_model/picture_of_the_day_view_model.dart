@@ -1,57 +1,67 @@
 import 'package:cosmo_news_to_do/src/core/utils/app_exception.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/data/repository/picture_of_the_day_repo.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/data_state_picture_of_the_day.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_data_state.dart';
+import 'package:flutter/material.dart';
 
 class PictureOfTheDayViewModel extends ChangeNotifier {
-  PictureOfTheDayViewModel(this._repository) {
-    init();
-  }
+  PictureOfTheDayViewModel(this._repository)
+      : _state = PictureOfTheDayDataStateInitial(
+          dateTimeRange: DateTimeRange(
+            start: DateTime.now().add(const Duration(days: -7)),
+            end: DateTime.now(),
+          ),
+        );
 
-  late PictureOfTheDayDataState state;
-  late DateTime _startDate;
+  late PictureOfTheDayDataState _state;
   final PictureOfTheDayRepo _repository;
-  late bool _isInit;
 
-  void init() {
-    _isInit = true;
-    state = PictureOfTheDayDataStateLoading();
-    _startDate = DateTime.now().subtract(const Duration(days: 7));
-    getPictures();
-  }
+  PictureOfTheDayDataState get state => _state;
 
-  Future<void> getPictures() async {
-    final DateTime endDate = _startDate.add(const Duration(days: 7));
+  Future<void> loadPictures() async {
     try {
       final data = await _repository.getPictures(
-        startDate: _startDate,
-        endDate: endDate,
+        startDate: _state.dateTimeRange.start,
+        endDate: _state.dateTimeRange.end,
       );
-      _decreaseDataByWeek();
-      state = PictureOfTheDayDataStateSuccess(
-        pictureOfTheDayResponseData: data,
+      const duration = Duration(days: -8);
+      final nextDtRange = DateTimeRange(
+        start: _state.dateTimeRange.start.add(duration),
+        end: _state.dateTimeRange.end.add(duration),
       );
-      if (_isInit) {
-        notifyListeners();
-        _isInit = !_isInit;
-      }
+      _state = PictureOfTheDayDataStateSuccess(
+        dateTimeRange: nextDtRange,
+        pictureOfTheDayResponseData: [
+          ..._state.pictureOfTheDayResponseData,
+          ...data,
+        ],
+      );
+      notifyListeners();
     } on AppException catch (e) {
-      state = PictureOfTheDayDataStateError(
-        pictureOfTheDayResponseData: [],
+      _state = PictureOfTheDayDataStateError(
+        dateTimeRange: _state.dateTimeRange,
+        pictureOfTheDayResponseData: state.pictureOfTheDayResponseData,
         message: e.message,
       );
       notifyListeners();
-    } on Object catch (e) {
-      state = PictureOfTheDayDataStateError(
-        pictureOfTheDayResponseData: [],
-        message: e.toString(),
-      );
-      notifyListeners();
+
       rethrow;
     }
   }
 
-  void _decreaseDataByWeek() {
-    _startDate = _startDate.subtract(const Duration(days: 8));
+  Future<void> loadMore() async {
+    _state = PictureOfTheDayDataStateLoading(
+      dateTimeRange: _state.dateTimeRange,
+      pictureOfTheDayResponseData: _state.pictureOfTheDayResponseData,
+    );
+    notifyListeners();
+    try {
+      await loadPictures();
+    } finally {
+      _state = PictureOfTheDayDataStateSuccess(
+        dateTimeRange: _state.dateTimeRange,
+        pictureOfTheDayResponseData: _state.pictureOfTheDayResponseData,
+      );
+      notifyListeners();
+    }
   }
 }
