@@ -13,8 +13,8 @@ class PictureOfTheDayViewModel extends ChangeNotifier {
         );
 
   late PictureOfTheDayDataState _state;
-  final PictureOfTheDayRepo _repository;
 
+  final PictureOfTheDayRepo _repository;
   PictureOfTheDayDataState get state => _state;
 
   Future<void> loadPictures() async {
