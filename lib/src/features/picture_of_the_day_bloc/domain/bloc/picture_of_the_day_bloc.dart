@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PictureOfTheDayBloc
     extends Bloc<PictureOfTheDayEvent, PictureOfTheDayBlocDataState> {
-  PictureOfTheDayBloc(this.repository)
+  PictureOfTheDayBloc(this._repository)
       : super(
           PictureOfTheDayBlocDataStateInitial(
             dateTimeRange: DateTimeRange(
@@ -26,14 +26,14 @@ class PictureOfTheDayBloc
     );
   }
 
-  PictureOfTheDayCopyRepository repository;
+  final PictureOfTheDayCopyRepository _repository;
 
   Future<void> _onLoadInitialPictureEvent(
     PictureOfTheDayEventLoadInitial event,
     Emitter<PictureOfTheDayBlocDataState> emitter,
   ) async {
     try {
-      final data = await repository.getPictures(
+      final data = await _repository.getPictures(
         startDate: state.dateTimeRange.start,
         endDate: state.dateTimeRange.end,
       );
@@ -66,7 +66,7 @@ class PictureOfTheDayBloc
       ),
     );
     try {
-      final data = await repository.getPictures(
+      final data = await _repository.getPictures(
         startDate: state.dateTimeRange.start,
         endDate: state.dateTimeRange.end,
       );

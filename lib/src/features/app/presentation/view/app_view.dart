@@ -13,16 +13,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class AppView extends StatefulWidget {
-   AppView({super.key});
-  final pictureOfTheDayProvider =  PictureOfTheDayApiProvider(dio: AppScope().dio);
-
+  AppView({super.key});
+  final pictureOfTheDayProvider =
+      PictureOfTheDayApiProvider(dio: AppScope().dio);
 
   @override
   State<AppView> createState() => _AppViewState();
 }
 
 class _AppViewState extends State<AppView> {
-  final pictureOfTheDayProvider =  PictureOfTheDayApiProvider(dio: AppScope().dio);
+  final pictureOfTheDayProvider =
+      PictureOfTheDayApiProvider(dio: AppScope().dio);
   late int _selectedIndex;
   @override
   void initState() {
@@ -64,7 +65,8 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     final appScope = AppScope();
-    final pictureOfTheDayProvider = PictureOfTheDayApiProvider(dio: appScope.dio);
+    final pictureOfTheDayProvider =
+        PictureOfTheDayApiProvider(dio: appScope.dio);
     return MultiProvider(
       providers: [
         Provider(create: (_) => appScope),
@@ -84,13 +86,24 @@ class _AppViewState extends State<AppView> {
         // TODO(add): fix if it would be several themes
         themeMode: ThemeMode.light,
         home: Scaffold(
-          body: SafeArea(child: Center(child: _widgetOptions[_selectedIndex])),
+          body: SafeArea(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: _widgetOptions,
+            ),
+          ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _selectedIndex,
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: 'BloC'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.account_balance),
+                label: 'BloC',
+              ),
               BottomNavigationBarItem(icon: Icon(Icons.pattern), label: 'MVVM'),
-              BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'настройки',),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'настройки',
+              ),
             ],
             onTap: _onItemTapped,
           ),

@@ -30,6 +30,7 @@ class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
         ),
       );
 }
+
 ///Список постов
 class PictureOfTheDayList extends StatefulWidget {
   const PictureOfTheDayList({

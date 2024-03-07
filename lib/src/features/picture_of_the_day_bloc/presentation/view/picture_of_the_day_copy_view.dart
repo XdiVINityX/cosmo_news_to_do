@@ -1,4 +1,5 @@
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_data_state.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_detail_view.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/widget/picture_of_the_day_item.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/bloc/picture_of_the_day_bloc.dart';
@@ -15,32 +16,34 @@ class PictureOfTheDayCopyView extends StatefulWidget {
 }
 
 class _PictureOfTheDayCopyViewState extends State<PictureOfTheDayCopyView> {
+  void _pictureOfRTheDayListener(
+    BuildContext context,
+    PictureOfTheDayBlocDataState state,
+  ) {
+    if (state is! PictureOfTheDayBlocDataStateError) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Произошла ошибка'),
+      ),
+    );
+  }
+
   @override
   // TODO(injection): repository inject
-  Widget build(BuildContext context) =>
-      BlocBuilder<PictureOfTheDayBloc, PictureOfTheDayBlocDataState>(
-        builder: (context, state) => Scaffold(
-          body: BlocConsumer<PictureOfTheDayBloc, PictureOfTheDayBlocDataState>(
-            builder: (context, state) => switch (state) {
-              PictureOfTheDayBlocDataStateInitial() =>
-                const Center(child: CircularProgressIndicator()),
-              PictureOfTheDayBlocDataStateError() => Center(
-                  child: Text(state.message),
-                ),
-              _ => PictureOfTheDayList(
-                  picturesOfTheDay: state.pictureOfTheDayResponseData,
-                ),
-            },
-            listener: (context, state) {
-              if (state is PictureOfTheDayBlocDataStateError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Произошла ошибка'),
-                  ),
-                );
-              }
-            },
-          ),
+  Widget build(BuildContext context) => Scaffold(
+        body: BlocConsumer<PictureOfTheDayBloc, PictureOfTheDayBlocDataState>(
+          listener: _pictureOfRTheDayListener,
+          builder: (context, state) => switch (state) {
+            PictureOfTheDayBlocDataStateInitial() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            PictureOfTheDayBlocDataStateError() => Center(
+                child: Text(state.message),
+              ),
+            _ => PictureOfTheDayList(
+                picturesOfTheDay: state.pictureOfTheDayResponseData,
+              ),
+          },
         ),
       );
 }

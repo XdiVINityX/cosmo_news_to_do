@@ -21,15 +21,4 @@ class AppScope {
 
     return dio;
   }
-
-  Future<List<Map<String, dynamic>>> get(
-    String baseUrl, {
-    required Map<String, String> queryParameters,
-  }) async {
-    final response = await _dio.get<List<Object?>>(
-      baseUrl,
-      queryParameters: queryParameters,
-    );
-    return response.data?.cast<Map<String, dynamic>>() ?? [];
-  }
 }
