@@ -1,14 +1,14 @@
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
 import 'package:flutter/material.dart';
 
-sealed class PictureOfTheDayDataState {
+sealed class PictureOfTheDayBlocDataState {
   DateTimeRange get dateTimeRange;
   List<PictureOfTheDayModel> get pictureOfTheDayResponseData;
 }
 
-final class PictureOfTheDayDataStateInitial
-    implements PictureOfTheDayDataState {
-  const PictureOfTheDayDataStateInitial({
+final class PictureOfTheDayBlocDataStateInitial
+    implements PictureOfTheDayBlocDataState {
+  const PictureOfTheDayBlocDataStateInitial({
     required this.dateTimeRange,
   });
   @override
@@ -19,9 +19,9 @@ final class PictureOfTheDayDataStateInitial
 }
 
 /// загрузка данных
-final class PictureOfTheDayDataStateLoading
-    implements PictureOfTheDayDataState {
-  PictureOfTheDayDataStateLoading({
+final class PictureOfTheDayBlocDataStateLoading
+    implements PictureOfTheDayBlocDataState {
+  PictureOfTheDayBlocDataStateLoading({
     required this.dateTimeRange,
     required this.pictureOfTheDayResponseData,
   });
@@ -32,10 +32,11 @@ final class PictureOfTheDayDataStateLoading
   final DateTimeRange dateTimeRange;
 }
 
+
 /// успешное получение данных
-final class PictureOfTheDayDataStateSuccess
-    implements PictureOfTheDayDataState {
-  PictureOfTheDayDataStateSuccess({
+final class PictureOfTheDayBlocDataStateSuccess
+    implements PictureOfTheDayBlocDataState {
+  PictureOfTheDayBlocDataStateSuccess({
     required this.dateTimeRange,
     required this.pictureOfTheDayResponseData,
   });
@@ -47,8 +48,8 @@ final class PictureOfTheDayDataStateSuccess
 }
 
 //ошибка
-final class PictureOfTheDayDataStateError implements PictureOfTheDayDataState {
-  PictureOfTheDayDataStateError({
+final class PictureOfTheDayBlocDataStateError implements PictureOfTheDayBlocDataState {
+  PictureOfTheDayBlocDataStateError({
     required this.dateTimeRange,
     required this.pictureOfTheDayResponseData,
     required this.message,

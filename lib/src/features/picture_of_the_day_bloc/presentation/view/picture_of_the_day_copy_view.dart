@@ -1,48 +1,48 @@
-import 'package:cosmo_news_to_do/src/features/app/di/app_scope.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/data/source/network/picture_of_the_day_api_provider.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_view_model.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_detail_view.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/widget/picture_of_the_day_item.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/data/repository/picture_of_the_day_repo.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/bloc/picture_of_the_day_bloc.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/bloc/picture_of_the_day_data_state.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/bloc/picture_of_the_day_bloc_data_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PictureOfTheDayView extends StatefulWidget {
-  const PictureOfTheDayView({super.key});
+class PictureOfTheDayCopyView extends StatefulWidget {
+  const PictureOfTheDayCopyView({super.key});
 
   @override
-  State<PictureOfTheDayView> createState() => _PictureOfTheDayViewState();
+  State<PictureOfTheDayCopyView> createState() =>
+      _PictureOfTheDayCopyViewState();
 }
 
-class _PictureOfTheDayViewState extends State<PictureOfTheDayView> {
+class _PictureOfTheDayCopyViewState extends State<PictureOfTheDayCopyView> {
   @override
   // TODO(injection): repository inject
-  Widget build(BuildContext context) => BlocBuilder<PictureOfTheDayBloc, PictureOfTheDayDataState>(
-    builder: (context, state) => Scaffold(
-      body: BlocConsumer<PictureOfTheDayBloc, PictureOfTheDayDataState>(
-        builder: (context, state) => switch (state) {
-          PictureOfTheDayDataStateInitial() =>
-            const Center(child: CircularProgressIndicator()),
-          PictureOfTheDayDataStateError() => Center(
-              child: Text(state.message),
-            ),
-          _ => PictureOfTheDayList(
-              picturesOfTheDay: state.pictureOfTheDayResponseData,
-            ),
-        },
-        listener: (context, state) {
-          if (state is PictureOfTheDayDataStateError){
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Произошла ошибка'),
-            ),);
-          }
-        },
-      ),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      BlocBuilder<PictureOfTheDayBloc, PictureOfTheDayBlocDataState>(
+        builder: (context, state) => Scaffold(
+          body: BlocConsumer<PictureOfTheDayBloc, PictureOfTheDayBlocDataState>(
+            builder: (context, state) => switch (state) {
+              PictureOfTheDayBlocDataStateInitial() =>
+                const Center(child: CircularProgressIndicator()),
+              PictureOfTheDayBlocDataStateError() => Center(
+                  child: Text(state.message),
+                ),
+              _ => PictureOfTheDayList(
+                  picturesOfTheDay: state.pictureOfTheDayResponseData,
+                ),
+            },
+            listener: (context, state) {
+              if (state is PictureOfTheDayBlocDataStateError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Произошла ошибка'),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      );
 }
 
 ///Список постов
@@ -66,9 +66,10 @@ class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
     super.initState();
     _scrollController = ScrollController()..addListener(_onScroll);
   }
+
   void _onScroll() {
     final bloc = context.read<PictureOfTheDayBloc>();
-    if (bloc.state is PictureOfTheDayDataStateLoading) {
+    if (bloc.state is PictureOfTheDayBlocDataStateLoading) {
       return;
     }
     if (_scrollController.position.pixels >=
@@ -116,7 +117,7 @@ class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
             },
           ),
           if (context.read<PictureOfTheDayBloc>().state
-              is PictureOfTheDayDataStateLoading)
+              is PictureOfTheDayBlocDataStateLoading)
             const SliverToBoxAdapter(
               child: Center(
                 child: CircularProgressIndicator(),
