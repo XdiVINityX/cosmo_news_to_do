@@ -14,26 +14,17 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-PictureOfTheDayCopyModel _$PictureOfTheDayCopyModelFromJson(
-    Map<String, dynamic> json) {
-  return _PictureOfTheDayCopyModel.fromJson(json);
-}
-
 /// @nodoc
 mixin _$PictureOfTheDayCopyModel {
   DateTime get date => throw _privateConstructorUsedError;
   String get explanation => throw _privateConstructorUsedError;
-  @JsonKey(name: 'hdurl')
   String? get hdUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'media_type')
   String get mediaType => throw _privateConstructorUsedError;
-  @JsonKey(name: 'service_version')
   String get serviceVersion => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get url => throw _privateConstructorUsedError;
   String? get copyright => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $PictureOfTheDayCopyModelCopyWith<PictureOfTheDayCopyModel> get copyWith =>
       throw _privateConstructorUsedError;
@@ -48,9 +39,9 @@ abstract class $PictureOfTheDayCopyModelCopyWith<$Res> {
   $Res call(
       {DateTime date,
       String explanation,
-      @JsonKey(name: 'hdurl') String? hdUrl,
-      @JsonKey(name: 'media_type') String mediaType,
-      @JsonKey(name: 'service_version') String serviceVersion,
+      String? hdUrl,
+      String mediaType,
+      String serviceVersion,
       String title,
       String url,
       String? copyright});
@@ -128,9 +119,9 @@ abstract class _$$PictureOfTheDayCopyModelImplCopyWith<$Res>
   $Res call(
       {DateTime date,
       String explanation,
-      @JsonKey(name: 'hdurl') String? hdUrl,
-      @JsonKey(name: 'media_type') String mediaType,
-      @JsonKey(name: 'service_version') String serviceVersion,
+      String? hdUrl,
+      String mediaType,
+      String serviceVersion,
       String title,
       String url,
       String? copyright});
@@ -196,33 +187,27 @@ class __$$PictureOfTheDayCopyModelImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$PictureOfTheDayCopyModelImpl implements _PictureOfTheDayCopyModel {
   const _$PictureOfTheDayCopyModelImpl(
       {required this.date,
       required this.explanation,
-      @JsonKey(name: 'hdurl') this.hdUrl,
-      @JsonKey(name: 'media_type') required this.mediaType,
-      @JsonKey(name: 'service_version') required this.serviceVersion,
+      this.hdUrl,
+      required this.mediaType,
+      required this.serviceVersion,
       required this.title,
       required this.url,
       this.copyright});
-
-  factory _$PictureOfTheDayCopyModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$PictureOfTheDayCopyModelImplFromJson(json);
 
   @override
   final DateTime date;
   @override
   final String explanation;
   @override
-  @JsonKey(name: 'hdurl')
   final String? hdUrl;
   @override
-  @JsonKey(name: 'media_type')
   final String mediaType;
   @override
-  @JsonKey(name: 'service_version')
   final String serviceVersion;
   @override
   final String title;
@@ -255,7 +240,6 @@ class _$PictureOfTheDayCopyModelImpl implements _PictureOfTheDayCopyModel {
                 other.copyright == copyright));
   }
 
-  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, date, explanation, hdUrl,
       mediaType, serviceVersion, title, url, copyright);
@@ -266,41 +250,28 @@ class _$PictureOfTheDayCopyModelImpl implements _PictureOfTheDayCopyModel {
   _$$PictureOfTheDayCopyModelImplCopyWith<_$PictureOfTheDayCopyModelImpl>
       get copyWith => __$$PictureOfTheDayCopyModelImplCopyWithImpl<
           _$PictureOfTheDayCopyModelImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$PictureOfTheDayCopyModelImplToJson(
-      this,
-    );
-  }
 }
 
 abstract class _PictureOfTheDayCopyModel implements PictureOfTheDayCopyModel {
   const factory _PictureOfTheDayCopyModel(
       {required final DateTime date,
       required final String explanation,
-      @JsonKey(name: 'hdurl') final String? hdUrl,
-      @JsonKey(name: 'media_type') required final String mediaType,
-      @JsonKey(name: 'service_version') required final String serviceVersion,
+      final String? hdUrl,
+      required final String mediaType,
+      required final String serviceVersion,
       required final String title,
       required final String url,
       final String? copyright}) = _$PictureOfTheDayCopyModelImpl;
-
-  factory _PictureOfTheDayCopyModel.fromJson(Map<String, dynamic> json) =
-      _$PictureOfTheDayCopyModelImpl.fromJson;
 
   @override
   DateTime get date;
   @override
   String get explanation;
   @override
-  @JsonKey(name: 'hdurl')
   String? get hdUrl;
   @override
-  @JsonKey(name: 'media_type')
   String get mediaType;
   @override
-  @JsonKey(name: 'service_version')
   String get serviceVersion;
   @override
   String get title;

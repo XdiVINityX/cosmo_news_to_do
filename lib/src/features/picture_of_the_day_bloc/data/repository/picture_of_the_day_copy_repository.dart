@@ -7,26 +7,16 @@ class PictureOfTheDayCopyRepository {
     required PictureOfTheDayCopyApiProvider pictureOfTheDayApiProvider,
   }) : _pictureOfTheDayApiProvider = pictureOfTheDayApiProvider;
 
-
   final PictureOfTheDayCopyApiProvider _pictureOfTheDayApiProvider;
 
   Future<List<PictureOfTheDayCopyModel>> getPictures({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    try {
-      final picturesMap = await _pictureOfTheDayApiProvider
-          .getPictures(startDate,endDate);
-      final pictures = picturesMap.map(PictureOfTheDayCopyModel.fromJson).toList().reversed.toList();
+    final picturesDto =
+        await _pictureOfTheDayApiProvider.getPictures(startDate, endDate);
+    final pictures = picturesDto.map(PictureOfTheDayCopyModel.fromDto).toList();
 
-      return pictures;
-    } on FormatException catch (e, s) {
-      Error.throwWithStackTrace(
-        AppException(internalMessage: 'Failed to parse picture of the day: $e'),
-        s,
-      );
-    } on Object {
-      rethrow;
-    }
+    return pictures;
   }
 }

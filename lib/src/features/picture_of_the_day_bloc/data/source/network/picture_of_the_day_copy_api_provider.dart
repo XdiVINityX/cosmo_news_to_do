@@ -1,6 +1,8 @@
 import 'package:cosmo_news_to_do/src/core/utils/app_exception.dart';
 import 'package:cosmo_news_to_do/src/core/utils/server_exceptions.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/data/dto/picture_of_the_day_dto.dart';
 import 'package:dio/dio.dart';
+
 const endPoint = 'planetary/apod';
 
 class PictureOfTheDayCopyApiProvider {
@@ -10,7 +12,10 @@ class PictureOfTheDayCopyApiProvider {
 
   final Dio _dio;
 
-  Future<List<Map<String, dynamic>>> getPictures(DateTime startDate, DateTime endDate,) async {
+  Future<Iterable<PictureOfTheDayDto>> getPictures(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
       final response = await _dio.get<List<dynamic>>(
         endPoint,
@@ -20,10 +25,17 @@ class PictureOfTheDayCopyApiProvider {
         },
       );
       final data = response.data?.cast<Map<String, dynamic>>().toList() ?? [];
-      return data;
+      final picturesDto = data.map(PictureOfTheDayDto.fromJson);
+
+      return picturesDto;
+    } on FormatException catch (e, s) {
+      Error.throwWithStackTrace(
+        AppException(internalMessage: 'Failed to parse picture of the day: $e'),
+        s,
+      );
     } on DioException catch (e) {
       throw ServerException(e);
-    } on Object catch (e){
+    } on Object catch (e) {
       throw AppException(internalMessage: e.toString());
     }
   }
