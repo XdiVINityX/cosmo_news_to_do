@@ -1,9 +1,9 @@
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/entity/picture_of_the_day_copy_model.dart';
 import 'package:flutter/material.dart';
 
 sealed class PictureOfTheDayBlocDataState {
   DateTimeRange get dateTimeRange;
-  List<PictureOfTheDayModel> get pictureOfTheDayResponseData;
+  List<PictureOfTheDayCopyModel> get pictureOfTheDayResponseData;
 }
 
 final class PictureOfTheDayBlocDataStateInitial
@@ -15,7 +15,7 @@ final class PictureOfTheDayBlocDataStateInitial
   final DateTimeRange dateTimeRange;
 
   @override
-  List<PictureOfTheDayModel> get pictureOfTheDayResponseData => [];
+  List<PictureOfTheDayCopyModel> get pictureOfTheDayResponseData => [];
 }
 
 /// загрузка данных
@@ -27,7 +27,7 @@ final class PictureOfTheDayBlocDataStateLoading
   });
 
   @override
-  final List<PictureOfTheDayModel> pictureOfTheDayResponseData;
+  final List<PictureOfTheDayCopyModel> pictureOfTheDayResponseData;
   @override
   final DateTimeRange dateTimeRange;
 }
@@ -42,7 +42,7 @@ final class PictureOfTheDayBlocDataStateSuccess
   });
 
   @override
-  final List<PictureOfTheDayModel> pictureOfTheDayResponseData;
+  final List<PictureOfTheDayCopyModel> pictureOfTheDayResponseData;
   @override
   final DateTimeRange dateTimeRange;
 }
@@ -56,7 +56,7 @@ final class PictureOfTheDayBlocDataStateError implements PictureOfTheDayBlocData
   });
 
   @override
-  final List<PictureOfTheDayModel> pictureOfTheDayResponseData;
+  final List<PictureOfTheDayCopyModel> pictureOfTheDayResponseData;
   @override
   final DateTimeRange dateTimeRange;
   final String message;

@@ -33,45 +33,54 @@ class _PictureOfTheDayItemState extends State<PictureOfTheDayItem> {
   @override
   Widget build(BuildContext context) {
     final  isYouTubeVideo = widget.url?.contains('youtube.com') ?? false;
-    return Card(
-        child: Column(
-          children: [
-            if (widget.date != null)
-              Text(
-                dateFormatter.format(widget.date!),
-                style: const TextStyle(fontSize: 16),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4,2,4,2),
+      child: Card(
+          child: Column(
+            children: [
+              if (widget.date != null)
+                Text(
+                  dateFormatter.format(widget.date!),
+                  style: const TextStyle(fontSize: 16,),
+                ),
+              if(widget.url != null && !isYouTubeVideo)
+              HeroImage(
+                url: widget.url!,
+                onTap: widget.onTap,
               ),
-            if(widget.url != null && !isYouTubeVideo)
-            HeroImage(
-              url: widget.url!,
-              onTap: widget.onTap,
-            ),
-            if (widget.explanation != null)
-              Text(
-                widget.explanation!,
-                style: const TextStyle(fontSize: 18),
-                maxLines: isExpanded ? null : 6,
-              ),
-            if (widget.explanation != null)
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isExpanded = !isExpanded;
-                      });
-                    },
-                    child: Text(
-                      textAlign: TextAlign.left,
-                      isExpanded ? 'Скрыть' : 'Показать полностью',
-                      style: const TextStyle(fontSize: 18, color: Colors.blue),
-                    ),
+              if (widget.explanation != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8,8,8,0),
+                  child: Text(
+                    widget.explanation!,
+                    style: const TextStyle(fontSize: 18),
+                    maxLines: isExpanded ? null : 6,
                   ),
-                ],
-              ),
-          ],
+                ),
+              if (widget.explanation != null)
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8,0,0,2),
+                        child: Text(
+                          textAlign: TextAlign.left,
+                          isExpanded ? 'Скрыть' : 'Показать полностью',
+                          style: const TextStyle(fontSize: 18, color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
-      );
+    );
   }
 }
 

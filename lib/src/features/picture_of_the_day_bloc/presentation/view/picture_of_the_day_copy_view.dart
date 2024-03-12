@@ -1,9 +1,8 @@
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/entity/picture_of_the_day_model.dart';
-import 'package:cosmo_news_to_do/src/features/picture_of_the_day/domain/view_model/picture_of_the_day_view_model/picture_of_the_day_data_state.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/view/picture_detail_view.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day/presentation/widget/picture_of_the_day_item.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/bloc/picture_of_the_day_bloc.dart';
 import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/bloc/picture_of_the_day_bloc_data_state.dart';
+import 'package:cosmo_news_to_do/src/features/picture_of_the_day_bloc/domain/entity/picture_of_the_day_copy_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,10 +15,8 @@ class PictureOfTheDayCopyView extends StatefulWidget {
 }
 
 class _PictureOfTheDayCopyViewState extends State<PictureOfTheDayCopyView> {
-  void _pictureOfRTheDayListener(
-    BuildContext context,
-    PictureOfTheDayBlocDataState state,
-  ) {
+  void _pictureOfRTheDayListener(BuildContext context,
+      PictureOfTheDayBlocDataState state,) {
     if (state is! PictureOfTheDayBlocDataStateError) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -30,19 +27,24 @@ class _PictureOfTheDayCopyViewState extends State<PictureOfTheDayCopyView> {
 
   @override
   // TODO(injection): repository inject
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) =>
+      Scaffold(
         body: BlocConsumer<PictureOfTheDayBloc, PictureOfTheDayBlocDataState>(
           listener: _pictureOfRTheDayListener,
-          builder: (context, state) => switch (state) {
-            PictureOfTheDayBlocDataStateInitial() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-            PictureOfTheDayBlocDataStateError() => Center(
-                child: Text(state.message),
-              ),
-            _ => PictureOfTheDayList(
-                picturesOfTheDay: state.pictureOfTheDayResponseData,
-              ),
+          builder: (context, state) =>
+          switch (state) {
+            PictureOfTheDayBlocDataStateInitial() =>
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+            PictureOfTheDayBlocDataStateError() =>
+                Center(
+                  child: Text(state.message),
+                ),
+            _ =>
+                PictureOfTheDayList(
+                  picturesOfTheDay: state.pictureOfTheDayResponseData,
+                ),
           },
         ),
       );
@@ -55,7 +57,7 @@ class PictureOfTheDayList extends StatefulWidget {
     required this.picturesOfTheDay,
   });
 
-  final List<PictureOfTheDayModel> picturesOfTheDay;
+  final List<PictureOfTheDayCopyModel> picturesOfTheDay;
 
   @override
   State<PictureOfTheDayList> createState() => _PictureOfTheDayListState();
@@ -64,10 +66,12 @@ class PictureOfTheDayList extends StatefulWidget {
 class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
   late final ScrollController _scrollController;
 
+
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()..addListener(_onScroll);
+    _scrollController = ScrollController()
+      ..addListener(_onScroll);
   }
 
   void _onScroll() {
@@ -81,25 +85,26 @@ class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
     }
   }
 
-  void _goToScreen(
-    BuildContext context, {
+  void _goToScreen(BuildContext context, {
     required String? url,
     required DateTime? date,
     required String? explanation,
   }) {
     Navigator.of(context).push(
       MaterialPageRoute<dynamic>(
-        builder: (context) => PictureDetailView(
-          url: url,
-          date: date,
-          explanation: explanation,
-        ),
+        builder: (context) =>
+            PictureDetailView(
+              url: url,
+              date: date,
+              explanation: explanation,
+            ),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) => CustomScrollView(
+  Widget build(BuildContext context) =>
+      CustomScrollView(
         controller: _scrollController,
         slivers: [
           SliverList.builder(
@@ -110,17 +115,20 @@ class _PictureOfTheDayListState extends State<PictureOfTheDayList> {
                 url: post.url,
                 date: post.date,
                 explanation: post.explanation,
-                onTap: () => _goToScreen(
-                  context,
-                  url: post.url,
-                  date: post.date,
-                  explanation: post.explanation,
-                ),
+                onTap: () =>
+                    _goToScreen(
+                      context,
+                      url: post.url,
+                      date: post.date,
+                      explanation: post.explanation,
+                    ),
               );
             },
           ),
-          if (context.read<PictureOfTheDayBloc>().state
-              is PictureOfTheDayBlocDataStateLoading)
+          if (context
+              .read<PictureOfTheDayBloc>()
+              .state
+          is PictureOfTheDayBlocDataStateLoading)
             const SliverToBoxAdapter(
               child: Center(
                 child: CircularProgressIndicator(),
